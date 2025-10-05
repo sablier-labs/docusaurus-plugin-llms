@@ -78,4 +78,4 @@ location = /llms-full.md {
 location = /llms.md {
   return 301 /llms.txt;
 }
-``` 
+```

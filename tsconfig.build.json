@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./node_modules/@sablier/devkit/tsconfig/build.json",
+  "compilerOptions": {
+    "outDir": "./lib",
+    "paths": {
+      "@src": ["./src"],
+      "@src/*": ["./src/*"]
+    },
+    "rootDir": "./src"
+  },
+  "exclude": ["./node_modules"],
+  "include": ["src"]
+}

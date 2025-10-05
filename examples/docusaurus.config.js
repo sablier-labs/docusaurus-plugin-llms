@@ -4,8 +4,8 @@
 
 // This is just an example file and doesn't need type checking
 const themes = {
+  dracula: {},
   github: {},
-  dracula: {}
 };
 
 const config = {
@@ -71,13 +71,13 @@ const config = {
     [
       'classic',
       {
-        docs: {
-          sidebarPath: './sidebars.js',
-          editUrl: 'https://github.com/my-org/my-project/tree/main/website/',
-        },
         blog: {
-          showReadingTime: true,
           editUrl: 'https://github.com/my-org/my-project/tree/main/website/',
+          showReadingTime: true,
+        },
+        docs: {
+          editUrl: 'https://github.com/my-org/my-project/tree/main/website/',
+          sidebarPath: './sidebars.js',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -87,79 +87,79 @@ const config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
-    navbar: {
-      title: 'My Project',
-      logo: {
-        alt: 'My Project Logo',
-        src: 'img/logo.svg',
-      },
-      items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Docs',
-        },
-        { to: '/blog', label: 'Blog', position: 'left' },
-        {
-          href: 'https://github.com/my-org/my-project',
-          label: 'GitHub',
-          position: 'right',
-        },
-      ],
-    },
     footer: {
-      style: 'dark',
+      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
       links: [
         {
-          title: 'Docs',
           items: [
             {
               label: 'Tutorial',
               to: '/docs/intro',
             },
           ],
+          title: 'Docs',
         },
         {
-          title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
               href: 'https://stackoverflow.com/questions/tagged/my-project',
+              label: 'Stack Overflow',
             },
             {
-              label: 'Discord',
               href: 'https://discord.gg/my-project',
+              label: 'Discord',
             },
             {
-              label: 'Twitter',
               href: 'https://twitter.com/my-project',
+              label: 'Twitter',
             },
           ],
+          title: 'Community',
         },
         {
-          title: 'More',
           items: [
             {
               label: 'Blog',
               to: '/blog',
             },
             {
-              label: 'GitHub',
               href: 'https://github.com/my-org/my-project',
+              label: 'GitHub',
             },
           ],
+          title: 'More',
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      style: 'dark',
+    },
+    // Replace with your project's social card
+    image: 'img/docusaurus-social-card.jpg',
+    navbar: {
+      items: [
+        {
+          label: 'Docs',
+          position: 'left',
+          sidebarId: 'tutorialSidebar',
+          type: 'docSidebar',
+        },
+        { label: 'Blog', position: 'left', to: '/blog' },
+        {
+          href: 'https://github.com/my-org/my-project',
+          label: 'GitHub',
+          position: 'right',
+        },
+      ],
+      logo: {
+        alt: 'My Project Logo',
+        src: 'img/logo.svg',
+      },
+      title: 'My Project',
     },
     prism: {
-      theme: themes.github,
       darkTheme: themes.dracula,
+      theme: themes.github,
     },
   },
 };
 
-module.exports = config; 
+module.exports = config;

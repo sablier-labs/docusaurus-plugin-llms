@@ -4,348 +4,6 @@
 
 This file contains all documentation content in a single document following the llmstxt.org standard.
 
-## Core API Reference
-
-
-This document provides detailed information about all core API methods and their parameters.
-
-## Installation
-
-```bash
-npm install @example/core-api
-```
-
-## Methods
-
-### initialize(options)
-
-Initialize the API with the provided configuration options.
-
-**Parameters:**
-
-- `options` (Object): Configuration options
-  - `apiKey` (string): Your API key
-  - `environment` (string, optional): Environment to use ('production' or 'sandbox')
-  - `timeout` (number, optional): Request timeout in milliseconds
-
-**Returns:** 
-
-Promise that resolves when initialization is complete.
-
-**Example:**
-
-```javascript
-await api.initialize({
-  apiKey: 'your-api-key',
-  environment: 'production',
-  timeout: 5000
-});
-```
-
-### fetchData(endpoint, params)
-
-Retrieve data from the specified endpoint.
-
-**Parameters:**
-
-- `endpoint` (string): API endpoint to call
-- `params` (Object): Query parameters
-
-**Returns:**
-
-Promise that resolves with the fetched data.
-
-**Example:**
-
-```javascript
-const data = await api.fetchData('users', { limit: 10 });
-```
-
-## Error Codes
-
-| Code | Description |
-|------|-------------|
-| 401  | Unauthorized - Invalid API key |
-| 404  | Resource not found |
-| 429  | Rate limit exceeded |
-| 500  | Server error |
-
----
-
-## API Overview
-
-
-This is the API overview.
-
----
-
-## Plugins System
-
-
-The plugin architecture allows you to extend the core functionality with custom modules.
-
-## Overview
-
-Our plugin system provides a flexible way to enhance the platform's capabilities without modifying the core code. Plugins can:
-
-- Add new API endpoints
-- Transform data during processing
-- Hook into lifecycle events
-- Create custom integrations
-- Modify the system's behavior
-
-## Plugin Structure
-
-A basic plugin has the following structure:
-
-```
-my-plugin/
-├── plugin.json     # Plugin metadata
-├── index.js        # Main entry point
-├── actions/        # Custom actions
-│   └── ...
-├── hooks/          # Event hooks
-│   └── ...
-└── README.md       # Documentation
-```
-
-### The `plugin.json` File
-
-This file contains essential metadata:
-
-```json
-{
-  "name": "my-awesome-plugin",
-  "version": "1.0.0",
-  "displayName": "My Awesome Plugin",
-  "description": "Adds awesome features to the platform",
-  "main": "index.js",
-  "author": "Your Name <your.email@example.com>",
-  "license": "MIT",
-  "compatibleWith": ">=2.5.0",
-  "dependencies": {
-    "other-plugin": ">=1.0.0"
-  },
-  "hooks": [
-    "before:process",
-    "after:process",
-    "init"
-  ],
-  "permissions": [
-    "READ_DATA",
-    "MODIFY_SETTINGS"
-  ]
-}
-```
-
-## Creating a Plugin
-
-### Step 1: Generate the boilerplate
-
-Use our CLI tool to generate a plugin template:
-
-```bash
-npx @example/plugin-cli create my-awesome-plugin
-```
-
-### Step 2: Implement the entry point
-
-Edit the `index.js` file:
-
-```javascript
-module.exports = function(pluginContext) {
-  // Plugin initialization code
-  
-  return {
-    // Hook implementations
-    hooks: {
-      'before:process': async function(data, options) {
-        // Modify data before processing
-        data.timestamp = Date.now();
-        return data;
-      },
-      
-      'after:process': async function(result, originalData) {
-        // Modify results after processing
-        console.log(`Processed data for: ${originalData.id}`);
-        return result;
-      },
-      
-      'init': async function() {
-        // Initialize plugin
-        console.log('My awesome plugin initialized!');
-      }
-    },
-    
-    // Custom actions
-    actions: {
-      doSomethingAwesome: async function(params) {
-        // Implement custom functionality
-        return { success: true, message: 'Something awesome happened!' };
-      }
-    }
-  };
-};
-```
-
-## Special Characters in Plugins
-
-Plugins may need to handle special characters in various contexts. Here are some examples:
-
-### Escaping in Strings
-
-```javascript
-const specialChars = {
-  'newline': '\n',
-  'tab': '\t',
-  'backslash': '\\',
-  'quotes': '\"\'',
-  'unicode': '\u2764\ufe0f',
-  'emoji': '🔌'
-};
-```
-
-### Regular Expressions
-
-```javascript
-// Match special patterns
-const pattern = /^[a-z0-9_-]+$/i;
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function isValidPluginName(name) {
-  return pattern.test(name);
-}
-
-function containsEmoji(str) {
-  const emojiRegex = /[\u{1F600}-\u{1F64F}]/u;
-  return emojiRegex.test(str);
-}
-```
-
-### JSON Handling
-
-```javascript
-function parseConfig(configStr) {
-  try {
-    // Handle escaped quotes and special chars in JSON
-    return JSON.parse(configStr);
-  } catch (e) {
-    throw new Error(`Invalid plugin configuration: ${e.message}`);
-  }
-}
-```
-
-## Plugin Configuration
-
-Plugins can be configured through the `config` property:
-
-```javascript
-module.exports = function(pluginContext) {
-  // Get configuration
-  const config = pluginContext.config || {};
-  
-  // Set defaults
-  const settings = {
-    debug: false,
-    timeout: 5000,
-    retries: 3,
-    ...config
-  };
-  
-  // Rest of plugin code
-  // ...
-};
-```
-
-## Hooks Reference
-
-| Hook Name | Description | Parameters |
-|-----------|-------------|------------|
-| `init` | Called when the system initializes | None |
-| `before:process` | Called before data processing | `(data, options)` |
-| `after:process` | Called after data processing | `(result, originalData)` |
-| `error` | Called when an error occurs | `(error, context)` |
-| `shutdown` | Called when the system is shutting down | None |
-
-## Common Plugin Examples
-
-### Logging Plugin
-
-```javascript
-// logger-plugin/index.js
-module.exports = function(ctx) {
-  return {
-    hooks: {
-      'before:process': async (data) => {
-        console.log(`[${new Date().toISOString()}] Processing started for ${data.id}`);
-        return data;
-      },
-      'after:process': async (result) => {
-        console.log(`[${new Date().toISOString()}] Processing completed`);
-        return result;
-      },
-      'error': async (error) => {
-        console.error(`[${new Date().toISOString()}] Error:`, error);
-      }
-    }
-  };
-};
-```
-
-### Data Transformation Plugin
-
-```javascript
-// transformer-plugin/index.js
-module.exports = function(ctx) {
-  return {
-    hooks: {
-      'before:process': async (data) => {
-        // Convert all string values to lowercase
-        Object.keys(data).forEach(key => {
-          if (typeof data[key] === 'string') {
-            data[key] = data[key].toLowerCase();
-          }
-        });
-        
-        return data;
-      }
-    }
-  };
-};
-```
-
-## Plugin Best Practices
-
-1. **Idempotency**: Ensure your plugin functions can be called multiple times with the same input and produce the same result
-2. **Error Handling**: Properly catch and handle errors to prevent plugin failures from affecting the core system
-3. **Resource Management**: Clean up resources in the `shutdown` hook
-4. **Versioning**: Follow semantic versioning for your plugins
-5. **Documentation**: Provide clear documentation and examples
-6. **Testing**: Write tests for your plugin functionality
-
-## Troubleshooting
-
-Common issues and solutions:
-
-### Plugin Not Loading
-
-- Check the plugin's `compatibleWith` field matches the current system version
-- Verify the plugin's dependencies are installed
-- Check for syntax errors in the plugin code
-
-### Permission Issues
-
-- Ensure the plugin has the necessary permissions defined in its `plugin.json`
-- Check if the current user has the required permissions to use the plugin
-
-### Performance Problems
-
-- Look for infinite loops or excessive resource usage
-- Optimize async operations and avoid blocking the main thread
-- Add appropriate timeouts to external API calls
-
----
-
 ## Changelog
 
 
@@ -548,6 +206,361 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial stable release
+
+---
+
+## Frequently Asked Questions
+
+
+Find answers to commonly asked questions about our product.
+
+## General Questions
+
+### What is this product?
+
+Our product is a comprehensive SDK that allows developers to integrate with our platform services. It provides a simple, consistent API for accessing data, performing operations, and implementing custom workflows.
+
+### Who should use this SDK?
+
+The SDK is designed for developers who need to integrate our services into their applications. It's particularly useful for:
+
+- Frontend developers building web or mobile applications
+- Backend developers creating services that interact with our platform
+- DevOps engineers setting up automated workflows
+
+### Is the SDK free to use?
+
+The SDK itself is free and open-source. However, usage of our platform services may require a subscription or pay-as-you-go plan depending on your usage volume. See our [pricing page](https://example.com/pricing) for details.
+
+## Installation & Setup
+
+### What are the system requirements?
+
+- Node.js v14 or higher
+- Internet connection for API calls
+- Valid API credentials
+
+### How do I install the SDK?
+
+```bash
+# Using npm
+npm install @example/sdk
+
+# Using yarn
+yarn add @example/sdk
+
+# Using pnpm
+pnpm add @example/sdk
+```
+
+### Where do I get an API key?
+
+You can obtain an API key by:
+
+1. Creating an account on our [developer portal](https://developers.example.com)
+2. Creating a new project
+3. Navigating to the "API Keys" section
+4. Generating a new key
+
+## Troubleshooting
+
+### Why am I getting authentication errors?
+
+Common reasons for authentication errors:
+
+1. **Invalid API key**: Double-check that your API key is correct and hasn't expired
+2. **Permissions issue**: Ensure your API key has the necessary permissions for the operations you're trying to perform
+3. **Environment mismatch**: Verify you're using the correct key for your environment (development vs. production)
+
+### How do I handle rate limiting?
+
+Our API implements rate limiting to ensure fair usage. If you encounter rate limit errors (HTTP 429), you should:
+
+1. Implement exponential backoff in your retry logic
+2. Consider caching frequently accessed data
+3. Optimize your code to batch requests where possible
+4. If you consistently hit rate limits, contact us about higher-tier plans
+
+### The SDK isn't working in my environment
+
+If you're experiencing issues:
+
+1. Check that you're using a compatible Node.js version
+2. Verify your network connectivity
+3. Enable debug mode for detailed logs:
+   ```javascript
+   const sdk = new SDK({
+     debug: true,
+     // other options...
+   });
+   ```
+4. Check our [GitHub issues](https://github.com/example/sdk/issues) to see if it's a known problem
+
+## Advanced Usage
+
+### Can I use the SDK in a browser environment?
+
+Yes, the SDK can be used in both Node.js and browser environments. However, for browser usage:
+
+1. Never include your API key directly in client-side code
+2. Set up a proxy service for secure API communication
+3. Use our specific browser bundle:
+   ```html
+   <script src="https://cdn.example.com/sdk/browser.min.js"></script>
+   ```
+
+### How do I handle webhook events?
+
+To process webhook events:
+
+1. Set up a webhook endpoint in your application
+2. Register the endpoint URL in our developer portal
+3. Use the SDK's webhook verification to ensure the events are authentic:
+   ```javascript
+   import { verifyWebhookSignature } from '@example/sdk/webhooks';
+   
+   app.post('/webhooks', (req, res) => {
+     const isValid = verifyWebhookSignature(
+       req.body,
+       req.headers['x-webhook-signature'],
+       process.env.WEBHOOK_SECRET
+     );
+     
+     if (!isValid) {
+       return res.status(401).send('Invalid signature');
+     }
+     
+     // Process the webhook event
+     handleEvent(req.body);
+     
+     res.status(200).send('OK');
+   });
+   ```
+
+## Support & Resources
+
+### Where can I get help?
+
+- [Documentation](https://docs.example.com)
+- [Community Forum](https://community.example.com)
+- [GitHub Issues](https://github.com/example/sdk/issues)
+- Email support: support@example.com
+
+### How do I report a bug?
+
+To report a bug:
+
+1. Check existing GitHub issues to see if it's already reported
+2. Gather relevant information (SDK version, error messages, steps to reproduce)
+3. Create a new issue on our [GitHub repository](https://github.com/example/sdk/issues/new)
+4. For security issues, please email security@example.com instead
+
+---
+
+## Getting Started
+
+
+This is a getting started guide.
+
+---
+
+## Home
+
+# Home Page
+
+Welcome to the test docs.
+
+---
+
+## Advanced Usage Guide
+
+
+This guide covers advanced usage scenarios and configuration options for experienced users.
+
+## Custom Authentication Providers
+
+For enterprises with custom authentication requirements, our SDK supports implementing custom authentication providers.
+
+### Creating a Custom Auth Provider
+
+Create a class that implements the `AuthProvider` interface:
+
+```typescript
+import { AuthProvider, AuthResponse } from '@example/sdk';
+
+export class CustomAuthProvider implements AuthProvider {
+  constructor(private readonly options: CustomAuthOptions) {}
+  
+  async getAuthToken(): Promise<AuthResponse> {
+    // Implement your custom authentication logic
+    // For example, integrating with your SSO solution
+    
+    return {
+      token: 'your-generated-token',
+      expiresAt: new Date(Date.now() + 3600 * 1000) // 1 hour from now
+    };
+  }
+  
+  async refreshToken(expiredToken: string): Promise<AuthResponse> {
+    // Implement your token refresh logic
+    
+    return {
+      token: 'your-refreshed-token',
+      expiresAt: new Date(Date.now() + 3600 * 1000)
+    };
+  }
+}
+```
+
+### Using Your Custom Auth Provider
+
+Initialize the SDK with your custom provider:
+
+```typescript
+import { SDK } from '@example/sdk';
+import { CustomAuthProvider } from './custom-auth-provider';
+
+const authProvider = new CustomAuthProvider({
+  // Your custom auth options
+  tenantId: 'your-tenant-id',
+  clientSecret: process.env.CLIENT_SECRET
+});
+
+const sdk = new SDK({
+  baseUrl: 'https://api.example.com/v2',
+  authProvider
+});
+```
+
+## Request Middleware
+
+The SDK supports middleware for modifying requests before they're sent. This is useful for adding custom headers, logging, or applying transformations.
+
+### Creating Request Middleware
+
+```typescript
+import { RequestMiddleware, RequestContext } from '@example/sdk';
+
+export const loggingMiddleware: RequestMiddleware = async (context: RequestContext, next) => {
+  console.log(`Request to ${context.request.url} initiated`);
+  
+  // Measure request duration
+  const startTime = Date.now();
+  
+  // Continue to the next middleware or to the actual request
+  const response = await next(context);
+  
+  console.log(`Request to ${context.request.url} completed in ${Date.now() - startTime}ms`);
+  
+  return response;
+};
+
+export const customHeadersMiddleware: RequestMiddleware = async (context: RequestContext, next) => {
+  // Add custom headers
+  context.request.headers = {
+    ...context.request.headers,
+    'x-tenant-id': 'your-tenant-id',
+    'x-custom-tracking': 'advanced-usage'
+  };
+  
+  return next(context);
+};
+```
+
+### Registering Middleware
+
+```typescript
+sdk.use(loggingMiddleware);
+sdk.use(customHeadersMiddleware);
+```
+
+## Handling Rate Limits
+
+For scenarios where you need to handle rate limiting gracefully, implement a custom retry strategy:
+
+```typescript
+import { RetryStrategy, RetryContext } from '@example/sdk';
+
+export class CustomRetryStrategy implements RetryStrategy {
+  async shouldRetry(context: RetryContext): Promise<boolean> {
+    // Only retry rate limit errors (429)
+    if (context.error.status !== 429) {
+      return false;
+    }
+    
+    // Check if we've already retried too many times
+    if (context.retryCount >= 3) {
+      return false;
+    }
+    
+    // Parse the rate limit reset time from the headers
+    const resetTime = parseInt(context.error.headers['x-rate-limit-reset'] || '0', 10);
+    
+    if (resetTime) {
+      // Wait until the rate limit resets
+      const waitTime = Math.max(0, resetTime - Math.floor(Date.now() / 1000));
+      console.log(`Rate limited, waiting for ${waitTime} seconds before retrying`);
+      
+      await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+      return true;
+    }
+    
+    // Use exponential backoff if no reset time is provided
+    const backoffTime = Math.pow(2, context.retryCount) * 1000;
+    await new Promise(resolve => setTimeout(resolve, backoffTime));
+    
+    return true;
+  }
+}
+```
+
+Apply your custom retry strategy:
+
+```typescript
+sdk.setRetryStrategy(new CustomRetryStrategy());
+```
+
+## Performance Optimization
+
+### Connection Pooling
+
+For high-throughput applications, enable connection pooling:
+
+```typescript
+const sdk = new SDK({
+  // ...other options
+  http: {
+    keepAlive: true,
+    maxSockets: 50, // Adjust based on your needs
+    timeout: 30000 // 30 seconds
+  }
+});
+```
+
+### Response Caching
+
+Implement response caching for frequently accessed data:
+
+```typescript
+import { createCache, MemoryStorage } from '@example/sdk/cache';
+
+// Create a cache with TTL of 5 minutes
+const cache = createCache({
+  storage: new MemoryStorage(),
+  defaultTtl: 5 * 60 * 1000
+});
+
+// Apply cache to the SDK
+sdk.setCache(cache);
+
+// Now results will be cached
+const data = await sdk.resources.get('resource-id');
+// Subsequent calls will use cached data if available
+```
+
+## Conclusion
+
+These advanced configurations allow you to customize the SDK behavior for complex enterprise scenarios. For additional assistance, contact our [enterprise support team](mailto:enterprise-support@example.com).
 
 ---
 
@@ -902,358 +915,345 @@ fetchWithErrorHandling();
 
 ---
 
-## Frequently Asked Questions
+## API Overview
 
 
-Find answers to commonly asked questions about our product.
+This is the API overview.
 
-## General Questions
+---
 
-### What is this product?
+## Plugins System
 
-Our product is a comprehensive SDK that allows developers to integrate with our platform services. It provides a simple, consistent API for accessing data, performing operations, and implementing custom workflows.
 
-### Who should use this SDK?
+The plugin architecture allows you to extend the core functionality with custom modules.
 
-The SDK is designed for developers who need to integrate our services into their applications. It's particularly useful for:
+## Overview
 
-- Frontend developers building web or mobile applications
-- Backend developers creating services that interact with our platform
-- DevOps engineers setting up automated workflows
+Our plugin system provides a flexible way to enhance the platform's capabilities without modifying the core code. Plugins can:
 
-### Is the SDK free to use?
+- Add new API endpoints
+- Transform data during processing
+- Hook into lifecycle events
+- Create custom integrations
+- Modify the system's behavior
 
-The SDK itself is free and open-source. However, usage of our platform services may require a subscription or pay-as-you-go plan depending on your usage volume. See our [pricing page](https://example.com/pricing) for details.
+## Plugin Structure
 
-## Installation & Setup
+A basic plugin has the following structure:
 
-### What are the system requirements?
-
-- Node.js v14 or higher
-- Internet connection for API calls
-- Valid API credentials
-
-### How do I install the SDK?
-
-```bash
-# Using npm
-npm install @example/sdk
-
-# Using yarn
-yarn add @example/sdk
-
-# Using pnpm
-pnpm add @example/sdk
+```
+my-plugin/
+├── plugin.json     # Plugin metadata
+├── index.js        # Main entry point
+├── actions/        # Custom actions
+│   └── ...
+├── hooks/          # Event hooks
+│   └── ...
+└── README.md       # Documentation
 ```
 
-### Where do I get an API key?
+### The `plugin.json` File
 
-You can obtain an API key by:
+This file contains essential metadata:
 
-1. Creating an account on our [developer portal](https://developers.example.com)
-2. Creating a new project
-3. Navigating to the "API Keys" section
-4. Generating a new key
+```json
+{
+  "name": "my-awesome-plugin",
+  "version": "1.0.0",
+  "displayName": "My Awesome Plugin",
+  "description": "Adds awesome features to the platform",
+  "main": "index.js",
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "compatibleWith": ">=2.5.0",
+  "dependencies": {
+    "other-plugin": ">=1.0.0"
+  },
+  "hooks": [
+    "before:process",
+    "after:process",
+    "init"
+  ],
+  "permissions": [
+    "READ_DATA",
+    "MODIFY_SETTINGS"
+  ]
+}
+```
+
+## Creating a Plugin
+
+### Step 1: Generate the boilerplate
+
+Use our CLI tool to generate a plugin template:
+
+```bash
+npx @example/plugin-cli create my-awesome-plugin
+```
+
+### Step 2: Implement the entry point
+
+Edit the `index.js` file:
+
+```javascript
+module.exports = function(pluginContext) {
+  // Plugin initialization code
+  
+  return {
+    // Hook implementations
+    hooks: {
+      'before:process': async function(data, options) {
+        // Modify data before processing
+        data.timestamp = Date.now();
+        return data;
+      },
+      
+      'after:process': async function(result, originalData) {
+        // Modify results after processing
+        console.log(`Processed data for: ${originalData.id}`);
+        return result;
+      },
+      
+      'init': async function() {
+        // Initialize plugin
+        console.log('My awesome plugin initialized!');
+      }
+    },
+    
+    // Custom actions
+    actions: {
+      doSomethingAwesome: async function(params) {
+        // Implement custom functionality
+        return { success: true, message: 'Something awesome happened!' };
+      }
+    }
+  };
+};
+```
+
+## Special Characters in Plugins
+
+Plugins may need to handle special characters in various contexts. Here are some examples:
+
+### Escaping in Strings
+
+```javascript
+const specialChars = {
+  'newline': '\n',
+  'tab': '\t',
+  'backslash': '\\',
+  'quotes': '\"\'',
+  'unicode': '\u2764\ufe0f',
+  'emoji': '🔌'
+};
+```
+
+### Regular Expressions
+
+```javascript
+// Match special patterns
+const pattern = /^[a-z0-9_-]+$/i;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isValidPluginName(name) {
+  return pattern.test(name);
+}
+
+function containsEmoji(str) {
+  const emojiRegex = /[\u{1F600}-\u{1F64F}]/u;
+  return emojiRegex.test(str);
+}
+```
+
+### JSON Handling
+
+```javascript
+function parseConfig(configStr) {
+  try {
+    // Handle escaped quotes and special chars in JSON
+    return JSON.parse(configStr);
+  } catch (e) {
+    throw new Error(`Invalid plugin configuration: ${e.message}`);
+  }
+}
+```
+
+## Plugin Configuration
+
+Plugins can be configured through the `config` property:
+
+```javascript
+module.exports = function(pluginContext) {
+  // Get configuration
+  const config = pluginContext.config || {};
+  
+  // Set defaults
+  const settings = {
+    debug: false,
+    timeout: 5000,
+    retries: 3,
+    ...config
+  };
+  
+  // Rest of plugin code
+  // ...
+};
+```
+
+## Hooks Reference
+
+| Hook Name | Description | Parameters |
+|-----------|-------------|------------|
+| `init` | Called when the system initializes | None |
+| `before:process` | Called before data processing | `(data, options)` |
+| `after:process` | Called after data processing | `(result, originalData)` |
+| `error` | Called when an error occurs | `(error, context)` |
+| `shutdown` | Called when the system is shutting down | None |
+
+## Common Plugin Examples
+
+### Logging Plugin
+
+```javascript
+// logger-plugin/index.js
+module.exports = function(ctx) {
+  return {
+    hooks: {
+      'before:process': async (data) => {
+        console.log(`[${new Date().toISOString()}] Processing started for ${data.id}`);
+        return data;
+      },
+      'after:process': async (result) => {
+        console.log(`[${new Date().toISOString()}] Processing completed`);
+        return result;
+      },
+      'error': async (error) => {
+        console.error(`[${new Date().toISOString()}] Error:`, error);
+      }
+    }
+  };
+};
+```
+
+### Data Transformation Plugin
+
+```javascript
+// transformer-plugin/index.js
+module.exports = function(ctx) {
+  return {
+    hooks: {
+      'before:process': async (data) => {
+        // Convert all string values to lowercase
+        Object.keys(data).forEach(key => {
+          if (typeof data[key] === 'string') {
+            data[key] = data[key].toLowerCase();
+          }
+        });
+        
+        return data;
+      }
+    }
+  };
+};
+```
+
+## Plugin Best Practices
+
+1. **Idempotency**: Ensure your plugin functions can be called multiple times with the same input and produce the same result
+2. **Error Handling**: Properly catch and handle errors to prevent plugin failures from affecting the core system
+3. **Resource Management**: Clean up resources in the `shutdown` hook
+4. **Versioning**: Follow semantic versioning for your plugins
+5. **Documentation**: Provide clear documentation and examples
+6. **Testing**: Write tests for your plugin functionality
 
 ## Troubleshooting
 
-### Why am I getting authentication errors?
+Common issues and solutions:
 
-Common reasons for authentication errors:
+### Plugin Not Loading
 
-1. **Invalid API key**: Double-check that your API key is correct and hasn't expired
-2. **Permissions issue**: Ensure your API key has the necessary permissions for the operations you're trying to perform
-3. **Environment mismatch**: Verify you're using the correct key for your environment (development vs. production)
+- Check the plugin's `compatibleWith` field matches the current system version
+- Verify the plugin's dependencies are installed
+- Check for syntax errors in the plugin code
 
-### How do I handle rate limiting?
+### Permission Issues
 
-Our API implements rate limiting to ensure fair usage. If you encounter rate limit errors (HTTP 429), you should:
+- Ensure the plugin has the necessary permissions defined in its `plugin.json`
+- Check if the current user has the required permissions to use the plugin
 
-1. Implement exponential backoff in your retry logic
-2. Consider caching frequently accessed data
-3. Optimize your code to batch requests where possible
-4. If you consistently hit rate limits, contact us about higher-tier plans
+### Performance Problems
 
-### The SDK isn't working in my environment
-
-If you're experiencing issues:
-
-1. Check that you're using a compatible Node.js version
-2. Verify your network connectivity
-3. Enable debug mode for detailed logs:
-   ```javascript
-   const sdk = new SDK({
-     debug: true,
-     // other options...
-   });
-   ```
-4. Check our [GitHub issues](https://github.com/example/sdk/issues) to see if it's a known problem
-
-## Advanced Usage
-
-### Can I use the SDK in a browser environment?
-
-Yes, the SDK can be used in both Node.js and browser environments. However, for browser usage:
-
-1. Never include your API key directly in client-side code
-2. Set up a proxy service for secure API communication
-3. Use our specific browser bundle:
-   ```html
-   <script src="https://cdn.example.com/sdk/browser.min.js"></script>
-   ```
-
-### How do I handle webhook events?
-
-To process webhook events:
-
-1. Set up a webhook endpoint in your application
-2. Register the endpoint URL in our developer portal
-3. Use the SDK's webhook verification to ensure the events are authentic:
-   ```javascript
-   import { verifyWebhookSignature } from '@example/sdk/webhooks';
-   
-   app.post('/webhooks', (req, res) => {
-     const isValid = verifyWebhookSignature(
-       req.body,
-       req.headers['x-webhook-signature'],
-       process.env.WEBHOOK_SECRET
-     );
-     
-     if (!isValid) {
-       return res.status(401).send('Invalid signature');
-     }
-     
-     // Process the webhook event
-     handleEvent(req.body);
-     
-     res.status(200).send('OK');
-   });
-   ```
-
-## Support & Resources
-
-### Where can I get help?
-
-- [Documentation](https://docs.example.com)
-- [Community Forum](https://community.example.com)
-- [GitHub Issues](https://github.com/example/sdk/issues)
-- Email support: support@example.com
-
-### How do I report a bug?
-
-To report a bug:
-
-1. Check existing GitHub issues to see if it's already reported
-2. Gather relevant information (SDK version, error messages, steps to reproduce)
-3. Create a new issue on our [GitHub repository](https://github.com/example/sdk/issues/new)
-4. For security issues, please email security@example.com instead
+- Look for infinite loops or excessive resource usage
+- Optimize async operations and avoid blocking the main thread
+- Add appropriate timeouts to external API calls
 
 ---
 
-## Getting Started
+## Core API Reference
 
 
-This is a getting started guide.
+This document provides detailed information about all core API methods and their parameters.
 
----
+## Installation
 
-## Advanced Usage Guide
-
-
-This guide covers advanced usage scenarios and configuration options for experienced users.
-
-## Custom Authentication Providers
-
-For enterprises with custom authentication requirements, our SDK supports implementing custom authentication providers.
-
-### Creating a Custom Auth Provider
-
-Create a class that implements the `AuthProvider` interface:
-
-```typescript
-import { AuthProvider, AuthResponse } from '@example/sdk';
-
-export class CustomAuthProvider implements AuthProvider {
-  constructor(private readonly options: CustomAuthOptions) {}
-  
-  async getAuthToken(): Promise<AuthResponse> {
-    // Implement your custom authentication logic
-    // For example, integrating with your SSO solution
-    
-    return {
-      token: 'your-generated-token',
-      expiresAt: new Date(Date.now() + 3600 * 1000) // 1 hour from now
-    };
-  }
-  
-  async refreshToken(expiredToken: string): Promise<AuthResponse> {
-    // Implement your token refresh logic
-    
-    return {
-      token: 'your-refreshed-token',
-      expiresAt: new Date(Date.now() + 3600 * 1000)
-    };
-  }
-}
+```bash
+npm install @example/core-api
 ```
 
-### Using Your Custom Auth Provider
+## Methods
 
-Initialize the SDK with your custom provider:
+### initialize(options)
 
-```typescript
-import { SDK } from '@example/sdk';
-import { CustomAuthProvider } from './custom-auth-provider';
+Initialize the API with the provided configuration options.
 
-const authProvider = new CustomAuthProvider({
-  // Your custom auth options
-  tenantId: 'your-tenant-id',
-  clientSecret: process.env.CLIENT_SECRET
-});
+**Parameters:**
 
-const sdk = new SDK({
-  baseUrl: 'https://api.example.com/v2',
-  authProvider
+- `options` (Object): Configuration options
+  - `apiKey` (string): Your API key
+  - `environment` (string, optional): Environment to use ('production' or 'sandbox')
+  - `timeout` (number, optional): Request timeout in milliseconds
+
+**Returns:** 
+
+Promise that resolves when initialization is complete.
+
+**Example:**
+
+```javascript
+await api.initialize({
+  apiKey: 'your-api-key',
+  environment: 'production',
+  timeout: 5000
 });
 ```
 
-## Request Middleware
+### fetchData(endpoint, params)
 
-The SDK supports middleware for modifying requests before they're sent. This is useful for adding custom headers, logging, or applying transformations.
+Retrieve data from the specified endpoint.
 
-### Creating Request Middleware
+**Parameters:**
 
-```typescript
-import { RequestMiddleware, RequestContext } from '@example/sdk';
+- `endpoint` (string): API endpoint to call
+- `params` (Object): Query parameters
 
-export const loggingMiddleware: RequestMiddleware = async (context: RequestContext, next) => {
-  console.log(`Request to ${context.request.url} initiated`);
-  
-  // Measure request duration
-  const startTime = Date.now();
-  
-  // Continue to the next middleware or to the actual request
-  const response = await next(context);
-  
-  console.log(`Request to ${context.request.url} completed in ${Date.now() - startTime}ms`);
-  
-  return response;
-};
+**Returns:**
 
-export const customHeadersMiddleware: RequestMiddleware = async (context: RequestContext, next) => {
-  // Add custom headers
-  context.request.headers = {
-    ...context.request.headers,
-    'x-tenant-id': 'your-tenant-id',
-    'x-custom-tracking': 'advanced-usage'
-  };
-  
-  return next(context);
-};
+Promise that resolves with the fetched data.
+
+**Example:**
+
+```javascript
+const data = await api.fetchData('users', { limit: 10 });
 ```
 
-### Registering Middleware
+## Error Codes
 
-```typescript
-sdk.use(loggingMiddleware);
-sdk.use(customHeadersMiddleware);
-```
-
-## Handling Rate Limits
-
-For scenarios where you need to handle rate limiting gracefully, implement a custom retry strategy:
-
-```typescript
-import { RetryStrategy, RetryContext } from '@example/sdk';
-
-export class CustomRetryStrategy implements RetryStrategy {
-  async shouldRetry(context: RetryContext): Promise<boolean> {
-    // Only retry rate limit errors (429)
-    if (context.error.status !== 429) {
-      return false;
-    }
-    
-    // Check if we've already retried too many times
-    if (context.retryCount >= 3) {
-      return false;
-    }
-    
-    // Parse the rate limit reset time from the headers
-    const resetTime = parseInt(context.error.headers['x-rate-limit-reset'] || '0', 10);
-    
-    if (resetTime) {
-      // Wait until the rate limit resets
-      const waitTime = Math.max(0, resetTime - Math.floor(Date.now() / 1000));
-      console.log(`Rate limited, waiting for ${waitTime} seconds before retrying`);
-      
-      await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
-      return true;
-    }
-    
-    // Use exponential backoff if no reset time is provided
-    const backoffTime = Math.pow(2, context.retryCount) * 1000;
-    await new Promise(resolve => setTimeout(resolve, backoffTime));
-    
-    return true;
-  }
-}
-```
-
-Apply your custom retry strategy:
-
-```typescript
-sdk.setRetryStrategy(new CustomRetryStrategy());
-```
-
-## Performance Optimization
-
-### Connection Pooling
-
-For high-throughput applications, enable connection pooling:
-
-```typescript
-const sdk = new SDK({
-  // ...other options
-  http: {
-    keepAlive: true,
-    maxSockets: 50, // Adjust based on your needs
-    timeout: 30000 // 30 seconds
-  }
-});
-```
-
-### Response Caching
-
-Implement response caching for frequently accessed data:
-
-```typescript
-import { createCache, MemoryStorage } from '@example/sdk/cache';
-
-// Create a cache with TTL of 5 minutes
-const cache = createCache({
-  storage: new MemoryStorage(),
-  defaultTtl: 5 * 60 * 1000
-});
-
-// Apply cache to the SDK
-sdk.setCache(cache);
-
-// Now results will be cached
-const data = await sdk.resources.get('resource-id');
-// Subsequent calls will use cached data if available
-```
-
-## Conclusion
-
-These advanced configurations allow you to customize the SDK behavior for complex enterprise scenarios. For additional assistance, contact our [enterprise support team](mailto:enterprise-support@example.com).
-
----
-
-## Home
-
-# Home Page
-
-Welcome to the test docs.
+| Code | Description |
+|------|-------------|
+| 401  | Unauthorized - Invalid API key |
+| 404  | Resource not found |
+| 429  | Rate limit exceeded |
+| 500  | Server error |
 
 ---
 

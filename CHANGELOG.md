@@ -2,12 +2,24 @@
 
 All notable changes to the docusaurus-plugin-llms will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.3.0] - 2025-10-20
+
+### Changed
+
+- The markdown filenames use frontmatter's `slug` as the default option. If the `slug` is missing, it fallbacks to
+  frontmatter's `id`. If `id` is missing, it fallbacks to the file name.
+
+### Added
+
+- New option `ignoreHtml` to ignore files with HTML tags in their descriptions
 
 ## [0.2.0] - 2025-01-20
 
 ### Added
+
 - **Custom Root Content**: Support for customizable root-level content in generated files
   - New `rootContent` option for customizing the introductory content in `llms.txt`
   - New `fullRootContent` option for customizing the introductory content in `llms-full.txt`
@@ -23,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Maintains source markdown approach while supporting partials
 
 ### Fixed
+
 - **URL Resolution**: Plugin now uses actual resolved URLs from Docusaurus routes instead of guessing paths
   - Properly handles numbered prefixes in file names (e.g., `1-page.md` → `/docs/page`)
   - Uses Docusaurus's route data from the `postBuild` lifecycle hook
@@ -30,12 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Adds comprehensive route matching including nested folders with numbered prefixes
 
 ### Technical Details
+
 - **Partial Resolution**:
   - Partial files (starting with `_`) are automatically excluded from `readMarkdownFiles`
   - New `resolvePartialImports` function processes import statements and inlines content
   - Supports relative imports and properly resolves file paths
   - Gracefully handles errors with warnings if partials can't be resolved
-  
+
 - **Route Resolution**:
   - The plugin now receives route information from Docusaurus via the `postBuild` props
   - Creates a route map from all available routes (including nested routes)
@@ -49,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.3] - 2024-05-20
 
 ### Added
+
 - Version information support for LLM files
   - Global version setting for all generated files
   - Individual version settings for custom LLM files
@@ -56,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version information follows llmstxt.org standards for LLM-friendly documentation
 
 ### Benefits
+
 - Provides clear versioning for LLM documentation files
 - Helps AI tools and users track which version of documentation they're working with
 - Allows content creators to maintain multiple versions of AI-friendly docs

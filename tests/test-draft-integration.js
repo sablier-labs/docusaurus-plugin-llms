@@ -2,19 +2,19 @@
  * Integration test for draft filtering in generated llms.txt files
  */
 
-const fs = require('fs');
-const path = require('path');
-const { collectDocFiles, generateLLMFile } = require('../lib/generator');
-const { processFilesWithPatterns } = require('../lib/processor');
+const fs = require("node:fs");
+const path = require("node:path");
+const { collectDocFiles, generateLLMFile } = require("../lib/generator");
+const { processFilesWithPatterns } = require("../lib/processor");
 
 async function runDraftIntegrationTest() {
-  console.log('Running draft filtering integration test...\n');
+  console.log("Running draft filtering integration test...\n");
 
   // Create test directory structure
-  const testDir = path.join(__dirname, 'test-draft-integration');
-  const docsDir = path.join(testDir, 'docs');
-  const buildDir = path.join(testDir, 'build');
-  
+  const testDir = path.join(__dirname, "test-draft-integration");
+  const docsDir = path.join(testDir, "docs");
+  const buildDir = path.join(testDir, "build");
+
   // Clean up and create directories
   if (fs.existsSync(testDir)) {
     fs.rmSync(testDir, { recursive: true });
@@ -26,17 +26,16 @@ async function runDraftIntegrationTest() {
   // Create test files
   const testFiles = [
     {
-      path: path.join(docsDir, 'intro.md'),
       content: `---
 title: Introduction
 ---
 
 # Introduction
 
-Welcome to our documentation.`
+Welcome to our documentation.`,
+      path: path.join(docsDir, "intro.md"),
     },
     {
-      path: path.join(docsDir, 'draft-feature.md'),
       content: `---
 title: New Feature (Draft)
 draft: true
@@ -44,10 +43,10 @@ draft: true
 
 # New Feature
 
-This is a draft feature that should not appear in llms.txt.`
+This is a draft feature that should not appear in llms.txt.`,
+      path: path.join(docsDir, "draft-feature.md"),
     },
     {
-      path: path.join(docsDir, 'guide.md'),
       content: `---
 title: User Guide
 draft: false
@@ -55,20 +54,20 @@ draft: false
 
 # User Guide
 
-This is the user guide.`
+This is the user guide.`,
+      path: path.join(docsDir, "guide.md"),
     },
     {
-      path: path.join(docsDir, 'api.md'),
       content: `---
 title: API Reference
 ---
 
 # API Reference
 
-API documentation goes here.`
+API documentation goes here.`,
+      path: path.join(docsDir, "api.md"),
     },
     {
-      path: path.join(docsDir, 'wip.md'),
       content: `---
 title: Work in Progress
 draft: true
@@ -76,8 +75,9 @@ draft: true
 
 # Work in Progress
 
-This page is still being written and should not be published.`
-    }
+This page is still being written and should not be published.`,
+      path: path.join(docsDir, "wip.md"),
+    },
   ];
 
   // Write test files
@@ -87,19 +87,19 @@ This page is still being written and should not be published.`
 
   // Mock context
   const mockContext = {
-    siteDir: testDir,
-    siteUrl: 'https://example.com',
-    docsDir: 'docs',
-    outDir: buildDir,
+    docsDir: "docs",
     options: {
-      docsDir: 'docs',
-      outputDir: 'llms'
-    }
+      docsDir: "docs",
+      outputDir: "llms",
+    },
+    outDir: buildDir,
+    siteDir: testDir,
+    siteUrl: "https://example.com",
   };
 
   try {
     // Collect doc files
-    console.log('Collecting documentation files...');
+    console.log("Collecting documentation files...");
     const allFiles = await collectDocFiles(mockContext);
     console.log(`Found ${allFiles.length} total files`);
 
@@ -110,58 +110,61 @@ This page is still being written and should not be published.`
       [], // includePatterns
       [], // ignorePatterns
       [], // orderPatterns
-      true // includeUnmatched
+      true, // includeUnmatched
     );
-    
+
     console.log(`Processed ${processedDocs.length} non-draft files`);
 
     // Generate LLM files
-    const outputDir = path.join(buildDir, 'llms');
+    const outputDir = path.join(buildDir, "llms");
     fs.mkdirSync(outputDir, { recursive: true });
 
     // Generate links-only file
-    console.log('\nGenerating llms.txt (links only)...');
+    console.log("\nGenerating llms.txt (links only)...");
     await generateLLMFile(
       processedDocs,
-      path.join(outputDir, 'llms.txt'),
-      'Documentation',
-      'Documentation for the project',
+      path.join(outputDir, "llms.txt"),
+      "Documentation",
+      "Documentation for the project",
       false, // includeContent
-      undefined // version
+      undefined, // version
     );
 
     // Generate full content file
-    console.log('Generating llms-full.txt (with content)...');
+    console.log("Generating llms-full.txt (with content)...");
     await generateLLMFile(
       processedDocs,
-      path.join(outputDir, 'llms-full.txt'),
-      'Documentation',
-      'Documentation for the project',
+      path.join(outputDir, "llms-full.txt"),
+      "Documentation",
+      "Documentation for the project",
       true, // includeContent
-      undefined // version
+      undefined, // version
     );
 
     // Read and verify the generated files
-    console.log('\nVerifying generated files...');
-    
-    const llmsTxt = fs.readFileSync(path.join(outputDir, 'llms.txt'), 'utf-8');
-    const llmsFullTxt = fs.readFileSync(path.join(outputDir, 'llms-full.txt'), 'utf-8');
-    
+    console.log("\nVerifying generated files...");
+
+    const llmsTxt = fs.readFileSync(path.join(outputDir, "llms.txt"), "utf-8");
+    const llmsFullTxt = fs.readFileSync(path.join(outputDir, "llms-full.txt"), "utf-8");
+
     // Debug: Show what's in the files
-    console.log('\nContent of llms.txt:');
-    console.log(llmsTxt.substring(0, 500) + '...');
-    console.log('\nTotal processed files:', processedDocs.length);
-    console.log('Files:', processedDocs.map(f => f.title));
+    console.log("\nContent of llms.txt:");
+    console.log(llmsTxt.substring(0, 500) + "...");
+    console.log("\nTotal processed files:", processedDocs.length);
+    console.log(
+      "Files:",
+      processedDocs.map((f) => f.title),
+    );
 
     // Check that draft pages are not included
-    const draftTitles = ['New Feature (Draft)', 'Work in Progress'];
-    const publishedTitles = ['Introduction', 'User Guide', 'API Reference'];
-    
+    const draftTitles = ["New Feature (Draft)", "Work in Progress"];
+    const publishedTitles = ["Introduction", "User Guide", "API Reference"];
+
     let passed = 0;
     let failed = 0;
 
     // Check links-only file
-    console.log('\nChecking llms.txt:');
+    console.log("\nChecking llms.txt:");
     for (const draftTitle of draftTitles) {
       if (!llmsTxt.includes(draftTitle)) {
         console.log(`✅ Draft page "${draftTitle}" is not in llms.txt`);
@@ -183,7 +186,7 @@ This page is still being written and should not be published.`
     }
 
     // Check full content file
-    console.log('\nChecking llms-full.txt:');
+    console.log("\nChecking llms-full.txt:");
     for (const draftTitle of draftTitles) {
       if (!llmsFullTxt.includes(draftTitle)) {
         console.log(`✅ Draft page "${draftTitle}" is not in llms-full.txt`);
@@ -195,7 +198,7 @@ This page is still being written and should not be published.`
     }
 
     // Check that draft content is not included
-    if (!llmsFullTxt.includes('This is a draft feature')) {
+    if (!llmsFullTxt.includes("This is a draft feature")) {
       console.log(`✅ Draft content is not in llms-full.txt`);
       passed++;
     } else {
@@ -217,9 +220,8 @@ This page is still being written and should not be published.`
     }
 
     return failed === 0;
-
   } catch (error) {
-    console.error('Integration test error:', error);
+    console.error("Integration test error:", error);
     // Clean up on error
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true });
@@ -230,12 +232,12 @@ This page is still being written and should not be published.`
 
 // Run the test
 runDraftIntegrationTest()
-  .then(success => {
+  .then((success) => {
     if (!success) {
       process.exit(1);
     }
   })
-  .catch(error => {
-    console.error('Test runner error:', error);
+  .catch((error) => {
+    console.error("Test runner error:", error);
     process.exit(1);
   });

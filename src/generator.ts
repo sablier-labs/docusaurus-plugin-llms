@@ -2,17 +2,17 @@
  * LLM file generation functions for the docusaurus-plugin-llms plugin
  */
 
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import { DocInfo, PluginContext, CustomLLMFile } from './types';
-import { 
-  writeFile, 
-  readMarkdownFiles, 
-  sanitizeForFilename, 
-  ensureUniqueIdentifier, 
-  createMarkdownContent 
-} from './utils';
-import { processFilesWithPatterns } from './processor';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { processFilesWithPatterns } from "./processor";
+import type { DocInfo, PluginContext } from "./types";
+import {
+  createMarkdownContent,
+  ensureUniqueIdentifier,
+  readMarkdownFiles,
+  sanitizeForFilename,
+  writeFile,
+} from "./utils";
 
 /**
  * Clean a description for use in a TOC item
@@ -20,18 +20,18 @@ import { processFilesWithPatterns } from './processor';
  * @returns Cleaned description suitable for TOC
  */
 function cleanDescriptionForToc(description: string): string {
-  if (!description) return '';
-  
+  if (!description) return "";
+
   // Get just the first line for TOC display
-  const firstLine = description.split('\n')[0];
-  
+  const firstLine = description.split("\n")[0];
+
   // Remove heading markers only at the beginning of the line
   // Be careful to only remove actual heading markers (# followed by space at beginning)
   // and not hashtag symbols that are part of the content (inline hashtags)
-  const cleaned = firstLine.replace(/^(#+)\s+/g, '');
-  
+  const cleaned = firstLine.replace(/^(#+)\s+/g, "");
+
   // Truncate if too long (150 characters max with ellipsis)
-  return cleaned.length > 150 ? cleaned.substring(0, 147) + '...' : cleaned;
+  return cleaned.length > 150 ? cleaned.substring(0, 147) + "..." : cleaned;
 }
 
 /**
@@ -51,50 +51,46 @@ export async function generateLLMFile(
   fileDescription: string,
   includeFullContent: boolean,
   version?: string,
-  customRootContent?: string
+  customRootContent?: string,
 ): Promise<void> {
-  console.log(`Generating file: ${outputPath}, version: ${version || 'undefined'}`);
-  const versionInfo = version ? `\n\nVersion: ${version}` : '';
-  
+  console.log(`Generating file: ${outputPath}, version: ${version || "undefined"}`);
+  const versionInfo = version ? `\n\nVersion: ${version}` : "";
+
   if (includeFullContent) {
     // Generate full content file with header deduplication
     const usedHeaders = new Set<string>();
-    const fullContentSections = docs.map(doc => {
+    const fullContentSections = docs.map((doc) => {
       // Check if content already starts with the same heading to avoid duplication
       const trimmedContent = doc.content.trim();
-      const firstLine = trimmedContent.split('\n')[0];
-      
+      const firstLine = trimmedContent.split("\n")[0];
+
       // Check if the first line is a heading that matches our title
       const headingMatch = firstLine.match(/^#+\s+(.+)$/);
       const firstHeadingText = headingMatch ? headingMatch[1].trim() : null;
-      
+
       // Generate unique header using the utility function
-      const uniqueHeader = ensureUniqueIdentifier(
-        doc.title, 
-        usedHeaders, 
-        (counter, base) => {
-          // Try to make it more descriptive by adding the file path info if available
-          if (doc.path && counter === 2) {
-            const pathParts = doc.path.split('/');
-            const folderName = pathParts.length > 1 ? pathParts[pathParts.length - 2] : '';
-            if (folderName) {
-              return `(${folderName.charAt(0).toUpperCase() + folderName.slice(1)})`;
-            }
+      const uniqueHeader = ensureUniqueIdentifier(doc.title, usedHeaders, (counter, _base) => {
+        // Try to make it more descriptive by adding the file path info if available
+        if (doc.path && counter === 2) {
+          const pathParts = doc.path.split("/");
+          const folderName = pathParts.length > 1 ? pathParts[pathParts.length - 2] : "";
+          if (folderName) {
+            return `(${folderName.charAt(0).toUpperCase() + folderName.slice(1)})`;
           }
-          return `(${counter})`;
         }
-      );
-      
+        return `(${counter})`;
+      });
+
       if (firstHeadingText === doc.title) {
         // Content already has the same heading, replace it with our unique header if needed
         if (uniqueHeader !== doc.title) {
-          const restOfContent = trimmedContent.split('\n').slice(1).join('\n');
+          const restOfContent = trimmedContent.split("\n").slice(1).join("\n");
           return `## ${uniqueHeader}
 
 ${restOfContent}`;
         } else {
           // Replace the existing H1 with H2 to comply with llmstxt.org standard
-          const restOfContent = trimmedContent.split('\n').slice(1).join('\n');
+          const restOfContent = trimmedContent.split("\n").slice(1).join("\n");
           return `## ${uniqueHeader}
 
 ${restOfContent}`;
@@ -108,44 +104,47 @@ ${doc.content}`;
     });
 
     // Use custom root content or default message
-    const rootContent = customRootContent || 'This file contains all documentation content in a single document following the llmstxt.org standard.';
-    
+    const rootContent =
+      customRootContent ||
+      "This file contains all documentation content in a single document following the llmstxt.org standard.";
+
     const llmFileContent = createMarkdownContent(
       fileTitle,
       `${fileDescription}${versionInfo}`,
-      `${rootContent}\n\n${fullContentSections.join('\n\n---\n\n')}`,
-      true // include metadata (description)
+      `${rootContent}\n\n${fullContentSections.join("\n\n---\n\n")}`,
+      true, // include metadata (description)
     );
 
     await writeFile(outputPath, llmFileContent);
   } else {
     // Generate links-only file
-    const tocItems = docs.map(doc => {
+    const tocItems = docs.map((doc) => {
       // Clean and format the description for TOC
       const cleanedDescription = cleanDescriptionForToc(doc.description);
-      
-      return `- [${doc.title}](${doc.url})${cleanedDescription ? `: ${cleanedDescription}` : ''}`;
+
+      return `- [${doc.title}](${doc.url})${cleanedDescription ? `: ${cleanedDescription}` : ""}`;
     });
 
     // Use custom root content or default message
-    const rootContent = customRootContent || 'This file contains links to documentation sections following the llmstxt.org standard.';
-    
+    const rootContent =
+      customRootContent || "This file contains links to documentation sections following the llmstxt.org standard.";
+
     const llmFileContent = createMarkdownContent(
       fileTitle,
       `${fileDescription}${versionInfo}`,
-      `${rootContent}\n\n## Table of Contents\n\n${tocItems.join('\n')}`,
-      true // include metadata (description)
+      `${rootContent}\n\n## Table of Contents\n\n${tocItems.join("\n")}`,
+      true, // include metadata (description)
     );
 
     await writeFile(outputPath, llmFileContent);
   }
-  
+
   console.log(`Generated: ${outputPath}`);
 }
 
 /**
  * Generate individual markdown files for each document
- * @param docs - Processed document information  
+ * @param docs - Processed document information
  * @param outputDir - Directory to write the markdown files
  * @param siteUrl - Base site URL
  * @param docsDir - The configured docs directory name (e.g., 'docs', 'documentation', etc.)
@@ -156,63 +155,60 @@ export async function generateIndividualMarkdownFiles(
   docs: DocInfo[],
   outputDir: string,
   siteUrl: string,
-  docsDir: string = 'docs',
-  keepFrontMatter: string[] = []
+  docsDir: string = "docs",
+  keepFrontMatter: string[] = [],
 ): Promise<DocInfo[]> {
   const updatedDocs: DocInfo[] = [];
   const usedPaths = new Set<string>();
-  
-  
+
   for (const doc of docs) {
     // Use the original path structure as default filename.
     let relativePath = doc.path
-      .replace(/^\/+/, '') // Remove leading slashes
-      .replace(/\.mdx?$/, '.md'); // Ensure .md extension
-    
-    
-    relativePath = relativePath
-      .replace(new RegExp(`^${docsDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`), '');// Remove configured docs dir prefix
+      .replace(/^\/+/, "") // Remove leading slashes
+      .replace(/\.mdx?$/, ".md"); // Ensure .md extension
+
+    relativePath = relativePath.replace(new RegExp(`^${docsDir.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/`), ""); // Remove configured docs dir prefix
 
     // If frontmatter has slug, use that.
-    if (doc.frontMatter?.slug) {
-      const pathParts = relativePath.replace(/\.md$/, '').split('/');
-      pathParts[pathParts.length - 1] = doc.frontMatter.slug.replace(/^\/+|\/+$/g, '');
-      relativePath = pathParts.join('/') + '.md';
-    } 
+    if (doc.frontMatter?.slug && typeof doc.frontMatter.slug === "string") {
+      const pathParts = relativePath.replace(/\.md$/, "").split("/");
+      pathParts[pathParts.length - 1] = doc.frontMatter.slug.replace(/^\/+|\/+$/g, "");
+      relativePath = pathParts.join("/") + ".md";
+    }
     // Otherwise, if frontmatter has id, use that.
-    else if (doc.frontMatter?.id) {
-      const pathParts = relativePath.replace(/\.md$/, '').split('/');
+    else if (doc.frontMatter?.id && typeof doc.frontMatter.id === "string") {
+      const pathParts = relativePath.replace(/\.md$/, "").split("/");
       pathParts[pathParts.length - 1] = doc.frontMatter.id;
-      relativePath = pathParts.join('/') + '.md';
+      relativePath = pathParts.join("/") + ".md";
     }
 
     // If path is empty or invalid, create a fallback path
-    if (!relativePath || relativePath === '.md') {
-      const sanitizedTitle = sanitizeForFilename(doc.title, 'untitled');
+    if (!relativePath || relativePath === ".md") {
+      const sanitizedTitle = sanitizeForFilename(doc.title, "untitled");
       relativePath = `${sanitizedTitle}.md`;
     }
-    
+
     // Ensure path uniqueness
     let uniquePath = relativePath;
     let counter = 1;
     while (usedPaths.has(uniquePath.toLowerCase())) {
       counter++;
-      const pathParts = relativePath.split('.');
-      const extension = pathParts.pop() || 'md';
-      const basePath = pathParts.join('.');
+      const pathParts = relativePath.split(".");
+      const extension = pathParts.pop() || "md";
+      const basePath = pathParts.join(".");
       uniquePath = `${basePath}-${counter}.${extension}`;
     }
     usedPaths.add(uniquePath.toLowerCase());
-    
+
     // Create the full file path and ensure directory exists
     const fullPath = path.join(outputDir, uniquePath);
     const directory = path.dirname(fullPath);
-    
+
     // Create directory structure if it doesn't exist
     await fs.mkdir(directory, { recursive: true });
-    
+
     // Extract preserved frontmatter if specified
-    let preservedFrontMatter: Record<string, any> = {};
+    const preservedFrontMatter: Record<string, unknown> = {};
     if (keepFrontMatter.length > 0 && doc.frontMatter) {
       for (const key of keepFrontMatter) {
         if (key in doc.frontMatter) {
@@ -223,30 +219,30 @@ export async function generateIndividualMarkdownFiles(
 
     // Create markdown content using the utility function
     const markdownContent = createMarkdownContent(
-      doc.title, 
-      doc.description, 
-      doc.content, 
+      doc.title,
+      doc.description,
+      doc.content,
       true, // includeMetadata
-      Object.keys(preservedFrontMatter).length > 0 ? preservedFrontMatter : undefined
+      Object.keys(preservedFrontMatter).length > 0 ? preservedFrontMatter : undefined,
     );
-    
+
     // Write the markdown file
     await writeFile(fullPath, markdownContent);
-    
+
     // Create updated DocInfo with new URL pointing to the generated markdown file
     // Convert file path to URL path (use forward slashes)
-    const urlPath = uniquePath.replace(/\\/g, '/');
+    const urlPath = uniquePath.replace(/\\/g, "/");
     const newUrl = `${siteUrl}/${urlPath}`;
-    
+
     updatedDocs.push({
       ...doc,
+      path: `/${urlPath}`, // Update path to the new markdown file
       url: newUrl,
-      path: `/${urlPath}` // Update path to the new markdown file
     });
-    
+
     console.log(`Generated markdown file: ${uniquePath}`);
   }
-  
+
   return updatedDocs;
 }
 
@@ -255,35 +251,26 @@ export async function generateIndividualMarkdownFiles(
  * @param context - Plugin context
  * @param allDocFiles - Array of all document files
  */
-export async function generateStandardLLMFiles(
-  context: PluginContext,
-  allDocFiles: string[]
-): Promise<void> {
-  const { 
-    outDir, 
-    siteUrl,
-    docTitle, 
-    docDescription, 
-    options 
-  } = context;
-  
-  const { 
-    generateLLMsTxt, 
+export async function generateStandardLLMFiles(context: PluginContext, allDocFiles: string[]): Promise<void> {
+  const { outDir, siteUrl, docTitle, docDescription, options } = context;
+
+  const {
+    generateLLMsTxt,
     generateLLMsFullTxt,
-    llmsTxtFilename = 'llms.txt',
-    llmsFullTxtFilename = 'llms-full.txt',
+    llmsTxtFilename = "llms.txt",
+    llmsFullTxtFilename = "llms-full.txt",
     includeOrder = [],
     includeUnmatchedLast = true,
     version,
     generateMarkdownFiles = false,
     rootContent,
-    fullRootContent
+    fullRootContent,
   } = options;
-  
+
   if (!generateLLMsTxt && !generateLLMsFullTxt) {
     return;
   }
-  
+
   // Process files for the standard outputs
   let processedDocs = await processFilesWithPatterns(
     context,
@@ -291,23 +278,23 @@ export async function generateStandardLLMFiles(
     [], // No specific include patterns - include all
     [], // No additional ignore patterns beyond global ignoreFiles
     includeOrder,
-    includeUnmatchedLast
+    includeUnmatchedLast,
   );
-  
+
   console.log(`Processed ${processedDocs.length} documentation files for standard LLM files`);
-  
+
   // Generate individual markdown files if requested
   if (generateMarkdownFiles && processedDocs.length > 0) {
-    console.log('Generating individual markdown files...');
+    console.log("Generating individual markdown files...");
     processedDocs = await generateIndividualMarkdownFiles(
       processedDocs,
       outDir,
       siteUrl,
       context.docsDir,
-      context.options.keepFrontMatter || []
+      context.options.keepFrontMatter || [],
     );
   }
-  
+
   // Generate llms.txt
   if (generateLLMsTxt) {
     const llmsTxtPath = path.join(outDir, llmsTxtFilename);
@@ -318,7 +305,7 @@ export async function generateStandardLLMFiles(
       docDescription,
       false, // links only
       version,
-      rootContent
+      rootContent,
     );
   }
 
@@ -332,7 +319,7 @@ export async function generateStandardLLMFiles(
       docDescription,
       true, // full content
       version,
-      fullRootContent
+      fullRootContent,
     );
   }
 }
@@ -342,28 +329,25 @@ export async function generateStandardLLMFiles(
  * @param context - Plugin context
  * @param allDocFiles - Array of all document files
  */
-export async function generateCustomLLMFiles(
-  context: PluginContext,
-  allDocFiles: string[]
-): Promise<void> {
+export async function generateCustomLLMFiles(context: PluginContext, allDocFiles: string[]): Promise<void> {
   const { outDir, siteUrl, docTitle, docDescription, options } = context;
   const { customLLMFiles = [], ignoreFiles = [], generateMarkdownFiles = false } = options;
-  
+
   if (customLLMFiles.length === 0) {
     return;
   }
-  
+
   console.log(`Generating ${customLLMFiles.length} custom LLM files...`);
-  
+
   for (const customFile of customLLMFiles) {
-    console.log(`Processing custom file: ${customFile.filename}, version: ${customFile.version || 'undefined'}`);
-    
+    console.log(`Processing custom file: ${customFile.filename}, version: ${customFile.version || "undefined"}`);
+
     // Combine global ignores with custom ignores
     const combinedIgnores = [...ignoreFiles];
     if (customFile.ignorePatterns) {
       combinedIgnores.push(...customFile.ignorePatterns);
     }
-    
+
     // Process files according to the custom configuration
     let customDocs = await processFilesWithPatterns(
       context,
@@ -371,9 +355,9 @@ export async function generateCustomLLMFiles(
       customFile.includePatterns,
       combinedIgnores,
       customFile.orderPatterns || [],
-      customFile.includeUnmatchedLast ?? false
+      customFile.includeUnmatchedLast ?? false,
     );
-    
+
     if (customDocs.length > 0) {
       // Generate individual markdown files if requested
       if (generateMarkdownFiles) {
@@ -383,14 +367,14 @@ export async function generateCustomLLMFiles(
           outDir,
           siteUrl,
           context.docsDir,
-          context.options.keepFrontMatter || []
+          context.options.keepFrontMatter || [],
         );
       }
-      
+
       // Use custom title/description or fall back to defaults
       const customTitle = customFile.title || docTitle;
       const customDescription = customFile.description || docDescription;
-      
+
       // Generate the custom LLM file
       const customFilePath = path.join(outDir, customFile.filename);
       await generateLLMFile(
@@ -400,9 +384,9 @@ export async function generateCustomLLMFiles(
         customDescription,
         customFile.fullContent,
         customFile.version,
-        customFile.rootContent
+        customFile.rootContent,
       );
-      
+
       console.log(`Generated custom LLM file: ${customFile.filename} with ${customDocs.length} documents`);
     } else {
       console.warn(`No matching documents found for custom LLM file: ${customFile.filename}`);
@@ -418,38 +402,36 @@ export async function generateCustomLLMFiles(
 export async function collectDocFiles(context: PluginContext): Promise<string[]> {
   const { siteDir, docsDir, options } = context;
   const { ignoreFiles = [], includeBlog = false } = options;
-  
+
   const allDocFiles: string[] = [];
-  
+
   // Process docs directory
   const fullDocsDir = path.join(siteDir, docsDir);
-  
+
   try {
     await fs.access(fullDocsDir);
-    
+
     // Collect all markdown files from docs directory
     const docFiles = await readMarkdownFiles(fullDocsDir, siteDir, ignoreFiles);
     allDocFiles.push(...docFiles);
-    
-  } catch (err) {
+  } catch (_err) {
     console.warn(`Docs directory not found: ${fullDocsDir}`);
   }
-  
+
   // Process blog if enabled
   if (includeBlog) {
-    const blogDir = path.join(siteDir, 'blog');
-    
+    const blogDir = path.join(siteDir, "blog");
+
     try {
       await fs.access(blogDir);
-      
+
       // Collect all markdown files from blog directory
       const blogFiles = await readMarkdownFiles(blogDir, siteDir, ignoreFiles);
       allDocFiles.push(...blogFiles);
-      
-    } catch (err) {
+    } catch (_err) {
       console.warn(`Blog directory not found: ${blogDir}`);
     }
   }
-  
+
   return allDocFiles;
-} 
+}

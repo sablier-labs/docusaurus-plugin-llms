@@ -1,5 +1,8 @@
 # 📜 docusaurus-plugin-llms
 
+> [!NOTE] This is a fork of docusaurus-plugin-llms created by [Patrick Rachford](https://github.com/rachfop/). The fork
+> version is maintained by Sablier Labs.
+
 A Docusaurus plugin for generating LLM-friendly documentation following the [llmstxt standard](https://llmstxt.org/).
 
 ## Features
@@ -37,7 +40,7 @@ A Docusaurus plugin for generating LLM-friendly documentation following the [llm
 ## Installation
 
 ```bash
-npm install docusaurus-plugin-llms --save-dev
+npm install @sablier/docusaurus-plugin-llms --save-dev
 ```
 
 Then add to your Docusaurus configuration:
@@ -46,7 +49,7 @@ Then add to your Docusaurus configuration:
 module.exports = {
   // ... your existing Docusaurus config
   plugins: [
-    'docusaurus-plugin-llms',
+    "docusaurus-plugin-llms",
     // ... your other plugins
   ],
 };
@@ -61,15 +64,15 @@ module.exports = {
   // ... your existing Docusaurus config
   plugins: [
     [
-      'docusaurus-plugin-llms',
+      "docusaurus-plugin-llms",
       {
         // Options here
         generateLLMsTxt: true,
         generateLLMsFullTxt: true,
-        docsDir: 'docs',
-        ignoreFiles: ['advanced/*', 'private/*'],
-        title: 'My Project Documentation',
-        description: 'Complete reference documentation for My Project',
+        docsDir: "docs",
+        ignoreFiles: ["advanced/*", "private/*"],
+        title: "My Project Documentation",
+        description: "Complete reference documentation for My Project",
         includeBlog: true,
         // Content cleaning options
         excludeImports: true,
@@ -77,35 +80,31 @@ module.exports = {
         // Generate individual markdown files following llmstxt.org specification
         generateMarkdownFiles: true,
         // Control documentation order
-        includeOrder: [
-          'getting-started/*',
-          'guides/*',
-          'api/*',
-        ],
+        includeOrder: ["getting-started/*", "guides/*", "api/*"],
         includeUnmatchedLast: true,
         // Path transformation options
         pathTransformation: {
           // Paths to ignore when constructing URLs (will be removed if found)
-          ignorePaths: ['docs'],
+          ignorePaths: ["docs"],
           // Paths to add when constructing URLs (will be prepended if not already present)
-          addPaths: ['api'],
+          addPaths: ["api"],
         },
         // Custom LLM files for specific documentation sections
         customLLMFiles: [
           {
-            filename: 'llms-python.txt',
-            includePatterns: ['api/python/**/*.md', 'guides/python/*.md'],
+            filename: "llms-python.txt",
+            includePatterns: ["api/python/**/*.md", "guides/python/*.md"],
             fullContent: true,
-            title: 'Python API Documentation',
-            description: 'Complete reference for Python API'
+            title: "Python API Documentation",
+            description: "Complete reference for Python API",
           },
           {
-            filename: 'llms-tutorials.txt',
-            includePatterns: ['tutorials/**/*.md'],
+            filename: "llms-tutorials.txt",
+            includePatterns: ["tutorials/**/*.md"],
             fullContent: false,
-            title: 'Tutorial Documentation',
-            description: 'All tutorials in a single file'
-          }
+            title: "Tutorial Documentation",
+            description: "All tutorials in a single file",
+          },
         ],
       },
     ],
@@ -116,44 +115,50 @@ module.exports = {
 
 ### Available Options
 
-| Option                           | Type     | Default           | Description                                                   |
-|----------------------------------|----------|-------------------|---------------------------------------------------------------|
-| `description`                    | string   | Site tagline      | Custom description to use in generated files                  |
-| `docsDir`                        | string   | `'docs'`          | Base directory for documentation files                        |
-| `excludeImports`                 | boolean  | `false`           | Remove import statements from generated content                |
-| `generateLLMsFullTxt`            | boolean  | `true`            | Whether to generate the full content file                     |
-| `generateLLMsTxt`                | boolean  | `true`            | Whether to generate the links file                            |
-| `ignoreFiles`                    | string[] | `[]`              | Array of glob patterns for files to ignore                    |
-| `includeBlog`                    | boolean  | `false`           | Whether to include blog content                               |
-| `includeOrder`                   | string[] | `[]`              | Array of glob patterns for files to process in specific order |
-| `includeUnmatchedLast`           | boolean  | `true`            | Whether to include unmatched files at the end                 |
-| `llmsFullTxtFilename`            | string   | `'llms-full.txt'` | Custom filename for the full content file                     |
-| `llmsTxtFilename`                | string   | `'llms.txt'`      | Custom filename for the links file                            |
-| `pathTransformation.addPaths`    | string[] | `[]`              | Path segments to add when constructing URLs                   |
-| `pathTransformation.ignorePaths` | string[] | `[]`              | Path segments to ignore when constructing URLs                |
-| `pathTransformation`             | object   | `undefined`       | Path transformation options for URL construction              |
-| `removeDuplicateHeadings`        | boolean  | `false`           | Remove redundant content that duplicates heading text         |
-| `title`                          | string   | Site title        | Custom title to use in generated files                        |
-| `version`                        | string   | `undefined`       | Global version to include in all generated files              |
-| `customLLMFiles`                 | array    | `[]`              | Array of custom LLM file configurations                       |
-| `generateMarkdownFiles`          | boolean  | `false`           | Generate individual markdown files and link to them from llms.txt |
-| `keepFrontMatter`                | string[] | []                | Preserve selected front matter items when generating individual markdown files
-| `rootContent`                    | string   | (see below)       | Custom content to include at the root level of llms.txt       |
-| `fullRootContent`                | string   | (see below)       | Custom content to include at the root level of llms-full.txt  |
+| Option                           | Type     | Default           | Description                                                                    |
+| -------------------------------- | -------- | ----------------- | ------------------------------------------------------------------------------ |
+| `description`                    | string   | Site tagline      | Custom description to use in generated files                                   |
+| `docsDir`                        | string   | `'docs'`          | Base directory for documentation files                                         |
+| `excludeImports`                 | boolean  | `false`           | Remove import statements from generated content                                |
+| `generateLLMsFullTxt`            | boolean  | `true`            | Whether to generate the full content file                                      |
+| `generateLLMsTxt`                | boolean  | `true`            | Whether to generate the links file                                             |
+| `ignoreFiles`                    | string[] | `[]`              | Array of glob patterns for files to ignore                                     |
+| `ignoreHTML`                     | boolean  | `false`           | Whether to ignore files with HTML tags in their descriptions                   |
+| `includeBlog`                    | boolean  | `false`           | Whether to include blog content                                                |
+| `includeOrder`                   | string[] | `[]`              | Array of glob patterns for files to process in specific order                  |
+| `includeUnmatchedLast`           | boolean  | `true`            | Whether to include unmatched files at the end                                  |
+| `llmsFullTxtFilename`            | string   | `'llms-full.txt'` | Custom filename for the full content file                                      |
+| `llmsTxtFilename`                | string   | `'llms.txt'`      | Custom filename for the links file                                             |
+| `pathTransformation.addPaths`    | string[] | `[]`              | Path segments to add when constructing URLs                                    |
+| `pathTransformation.ignorePaths` | string[] | `[]`              | Path segments to ignore when constructing URLs                                 |
+| `pathTransformation`             | object   | `undefined`       | Path transformation options for URL construction                               |
+| `removeDuplicateHeadings`        | boolean  | `false`           | Remove redundant content that duplicates heading text                          |
+| `title`                          | string   | Site title        | Custom title to use in generated files                                         |
+| `version`                        | string   | `undefined`       | Global version to include in all generated files                               |
+| `customLLMFiles`                 | array    | `[]`              | Array of custom LLM file configurations                                        |
+| `generateMarkdownFiles`          | boolean  | `false`           | Generate individual markdown files and link to them from llms.txt              |
+| `keepFrontMatter`                | string[] | []                | Preserve selected front matter items when generating individual markdown files |
+| `rootContent`                    | string   | (see below)       | Custom content to include at the root level of llms.txt                        |
+| `fullRootContent`                | string   | (see below)       | Custom content to include at the root level of llms-full.txt                   |
 
 ### Custom Root Content
 
-The `rootContent` and `fullRootContent` options allow you to customize the introductory content that appears in your generated files, following the llmstxt.org standard which allows "zero or more markdown sections (e.g. paragraphs, lists, etc) of any type except headings" after the title and description.
+The `rootContent` and `fullRootContent` options allow you to customize the introductory content that appears in your
+generated files, following the llmstxt.org standard which allows "zero or more markdown sections (e.g. paragraphs,
+lists, etc) of any type except headings" after the title and description.
 
 #### Default Content
 
 If not specified, the plugin uses these defaults:
+
 - **llms.txt**: "This file contains links to documentation sections following the llmstxt.org standard."
-- **llms-full.txt**: "This file contains all documentation content in a single document following the llmstxt.org standard."
+- **llms-full.txt**: "This file contains all documentation content in a single document following the llmstxt.org
+  standard."
 
 #### Custom Content Examples
 
 **Example 1**: Add project-specific context
+
 ```js
 rootContent: `Welcome to the MyProject documentation.
 
@@ -163,10 +168,11 @@ This documentation covers:
 - Advanced usage guides
 - Troubleshooting
 
-For the latest updates, visit https://myproject.dev/changelog`
+For the latest updates, visit https://myproject.dev/changelog`;
 ```
 
 **Example 2**: Add technical specifications
+
 ```js
 fullRootContent: `Complete offline documentation bundle for MyProject v2.0.
 
@@ -175,10 +181,11 @@ fullRootContent: `Complete offline documentation bundle for MyProject v2.0.
 **Last Generated**: ${new Date().toISOString()}
 
 > Note: Some features require authentication tokens.
-> See the Authentication section for details.`
+> See the Authentication section for details.`;
 ```
 
 **Example 3**: Add navigation hints for AI assistants
+
 ```js
 rootContent: `This documentation is optimized for AI assistants and LLMs.
 
@@ -187,7 +194,7 @@ Quick navigation:
 - For code examples, search for "Example:"
 - For configuration, search for "Config:"
 
-All code examples are MIT licensed unless otherwise noted.`
+All code examples are MIT licensed unless otherwise noted.`;
 ```
 
 #### Custom Root Content for Custom LLM Files
@@ -197,16 +204,16 @@ You can also specify root content for each custom LLM file:
 ```js
 customLLMFiles: [
   {
-    filename: 'llms-api.txt',
-    includePatterns: ['api/**/*.md'],
+    filename: "llms-api.txt",
+    includePatterns: ["api/**/*.md"],
     fullContent: true,
-    title: 'API Documentation',
+    title: "API Documentation",
     rootContent: `Complete API reference for all REST endpoints.
-    
+
 Authentication required for all endpoints except /health.
-Base URL: https://api.example.com/v2`
-  }
-]
+Base URL: https://api.example.com/v2`,
+  },
+];
 ```
 
 ### Path Transformation Examples
@@ -214,28 +221,34 @@ Base URL: https://api.example.com/v2`
 The path transformation feature allows you to manipulate how URLs are constructed from file paths:
 
 **Example 1**: Remove 'docs' from the URL path
+
 ```js
 pathTransformation: {
   ignorePaths: ['docs'],
 }
 ```
+
 File path: `/content/docs/manual/decorators.md` → URL: `https://example.com/manual/decorators`
 
 **Example 2**: Add 'api' to the URL path
+
 ```js
 pathTransformation: {
   addPaths: ['api'],
 }
 ```
+
 File path: `/content/manual/decorators.md` → URL: `https://example.com/api/manual/decorators`
 
 **Example 3**: Combine both transformations
+
 ```js
 pathTransformation: {
   ignorePaths: ['docs'],
   addPaths: ['api'],
 }
 ```
+
 File path: `/content/docs/manual/decorators.md` → URL: `https://example.com/api/manual/decorators`
 
 The configuration supports multiple path segments in both arrays.
@@ -245,58 +258,66 @@ The configuration supports multiple path segments in both arrays.
 The document ordering feature allows you to control the sequence in which files appear in the generated output:
 
 **Example 1**: Basic Section Ordering
+
 ```js
-includeOrder: [
-  'getting-started/*',
-  'guides/*',
-  'api/*',
-  'advanced/*'
-]
+includeOrder: ["getting-started/*", "guides/*", "api/*", "advanced/*"];
 ```
+
 Result: Files will appear in the generated output following this section order.
 
 **Example 2**: Strict Inclusion List
+
 ```js
 includeOrder: [
   'public-docs/**/*.md'
 ],
 includeUnmatchedLast: false
 ```
-Result: Only files matching 'public-docs/**/*.md' are included, all others are excluded.
+
+Result: Only files matching 'public-docs/\*_/_.md' are included, all others are excluded.
 
 **Example 3**: Detailed Ordering with Specific Files First
+
 ```js
 includeOrder: [
-  'getting-started/installation.md',
-  'getting-started/quick-start.md',
-  'getting-started/*.md',
-  'api/core/*.md',
-  'api/plugins/*.md',
-  'api/**/*.md'
-]
+  "getting-started/installation.md",
+  "getting-started/quick-start.md",
+  "getting-started/*.md",
+  "api/core/*.md",
+  "api/plugins/*.md",
+  "api/**/*.md",
+];
 ```
-Result: Installation and quick-start guides appear first, followed by other getting-started files, then API documentation in a specific order.
+
+Result: Installation and quick-start guides appear first, followed by other getting-started files, then API
+documentation in a specific order.
 
 ### Docusaurus Partials Support
 
-The plugin fully supports [Docusaurus partials](https://docusaurus.io/docs/markdown-features/react#importing-markdown) - reusable MDX content files that can be imported into other documents.
+The plugin fully supports [Docusaurus partials](https://docusaurus.io/docs/markdown-features/react#importing-markdown) -
+reusable MDX content files that can be imported into other documents.
 
 #### How It Works
 
-1. **Partial files** (MDX files starting with underscore, e.g., `_shared-config.mdx`) are automatically excluded from the generated `llms*.txt` files
+1. **Partial files** (MDX files starting with underscore, e.g., `_shared-config.mdx`) are automatically excluded from
+   the generated `llms*.txt` files
 2. **Import statements** for partials are resolved and the content is inlined when processing documents
 
 #### Example
 
 Given a partial file `_api-config.mdx`:
-```mdx
+
+````mdx
 ## API Configuration
 
 Set your API endpoint:
+
 ```javascript
-const API_URL = 'https://api.example.com';
+const API_URL = "https://api.example.com";
 ```
-```
+````
+
+````
 
 And a document that imports it:
 ```mdx
@@ -311,50 +332,52 @@ import ApiConfig from './_api-config.mdx';
 <ApiConfig />
 
 Now you can make API calls...
-```
+````
 
 The plugin will:
+
 - Exclude `_api-config.mdx` from `llms.txt`
 - Replace the import and `<ApiConfig />` with the actual content in the processed document
 
 ### Custom LLM Files
 
-In addition to the standard `llms.txt` and `llms-full.txt` files, you can generate custom LLM-friendly files for different sections of your documentation with the `customLLMFiles` option:
+In addition to the standard `llms.txt` and `llms-full.txt` files, you can generate custom LLM-friendly files for
+different sections of your documentation with the `customLLMFiles` option:
 
 ```js
 customLLMFiles: [
   {
-    filename: 'llms-python.txt',
-    includePatterns: ['api/python/**/*.md', 'guides/python/*.md'],
+    filename: "llms-python.txt",
+    includePatterns: ["api/python/**/*.md", "guides/python/*.md"],
     fullContent: true,
-    title: 'Python API Documentation',
-    description: 'Complete reference for Python API'
+    title: "Python API Documentation",
+    description: "Complete reference for Python API",
   },
   {
-    filename: 'llms-tutorials.txt',
-    includePatterns: ['tutorials/**/*.md'],
+    filename: "llms-tutorials.txt",
+    includePatterns: ["tutorials/**/*.md"],
     fullContent: false,
-    title: 'Tutorial Documentation',
-    description: 'All tutorials in a single file'
-  }
-]
+    title: "Tutorial Documentation",
+    description: "All tutorials in a single file",
+  },
+];
 ```
 
 #### Custom LLM File Configuration
 
 Each custom LLM file is defined by an object with the following properties:
 
-| Option                | Type     | Required | Description                                  |
-|-----------------------|----------|----------|----------------------------------------------|
-| `filename`            | string   | Yes      | Name of the output file (e.g., 'llms-python.txt') |
-| `includePatterns`     | string[] | Yes      | Glob patterns for files to include |
-| `fullContent`         | boolean  | Yes      | `true` for full content like llms-full.txt, `false` for links only like llms.txt |
-| `title`               | string   | No       | Custom title for this file (defaults to site title) |
-| `description`         | string   | No       | Custom description for this file (defaults to site description) |
-| `ignorePatterns`      | string[] | No       | Additional patterns to exclude (combined with global ignoreFiles) |
-| `orderPatterns`       | string[] | No       | Order patterns for controlling file ordering (similar to includeOrder) |
-| `includeUnmatchedLast`| boolean  | No       | Whether to include unmatched files last (default: false) |
-| `version`             | string   | No       | Version information for this LLM file (overrides global version) |
+| Option                 | Type     | Required | Description                                                                      |
+| ---------------------- | -------- | -------- | -------------------------------------------------------------------------------- |
+| `filename`             | string   | Yes      | Name of the output file (e.g., 'llms-python.txt')                                |
+| `includePatterns`      | string[] | Yes      | Glob patterns for files to include                                               |
+| `fullContent`          | boolean  | Yes      | `true` for full content like llms-full.txt, `false` for links only like llms.txt |
+| `title`                | string   | No       | Custom title for this file (defaults to site title)                              |
+| `description`          | string   | No       | Custom description for this file (defaults to site description)                  |
+| `ignorePatterns`       | string[] | No       | Additional patterns to exclude (combined with global ignoreFiles)                |
+| `orderPatterns`        | string[] | No       | Order patterns for controlling file ordering (similar to includeOrder)           |
+| `includeUnmatchedLast` | boolean  | No       | Whether to include unmatched files last (default: false)                         |
+| `version`              | string   | No       | Version information for this LLM file (overrides global version)                 |
 
 #### Use Cases
 
@@ -365,18 +388,18 @@ Create separate files for different programming languages:
 ```js
 customLLMFiles: [
   {
-    filename: 'llms-python.txt',
-    includePatterns: ['api/python/**/*.md', 'guides/python/*.md'],
+    filename: "llms-python.txt",
+    includePatterns: ["api/python/**/*.md", "guides/python/*.md"],
     fullContent: true,
-    title: 'Python API Documentation'
+    title: "Python API Documentation",
   },
   {
-    filename: 'llms-javascript.txt',
-    includePatterns: ['api/javascript/**/*.md', 'guides/javascript/*.md'],
+    filename: "llms-javascript.txt",
+    includePatterns: ["api/javascript/**/*.md", "guides/javascript/*.md"],
     fullContent: true,
-    title: 'JavaScript API Documentation'
-  }
-]
+    title: "JavaScript API Documentation",
+  },
+];
 ```
 
 ##### Content Type Separation
@@ -386,18 +409,18 @@ Separate tutorials from API reference:
 ```js
 customLLMFiles: [
   {
-    filename: 'llms-tutorials.txt',
-    includePatterns: ['tutorials/**/*.md', 'guides/**/*.md'],
+    filename: "llms-tutorials.txt",
+    includePatterns: ["tutorials/**/*.md", "guides/**/*.md"],
     fullContent: true,
-    title: 'Tutorials and Guides'
+    title: "Tutorials and Guides",
   },
   {
-    filename: 'llms-api.txt',
-    includePatterns: ['api/**/*.md', 'reference/**/*.md'],
+    filename: "llms-api.txt",
+    includePatterns: ["api/**/*.md", "reference/**/*.md"],
     fullContent: true,
-    title: 'API Reference'
-  }
-]
+    title: "API Reference",
+  },
+];
 ```
 
 ##### Beginner-Friendly Documentation
@@ -407,20 +430,15 @@ Create a beginner-focused file with carefully ordered content:
 ```js
 customLLMFiles: [
   {
-    filename: 'llms-getting-started.txt',
-    includePatterns: ['**/*.md'],
-    ignorePatterns: ['advanced/**/*.md', 'internal/**/*.md'],
-    orderPatterns: [
-      'introduction.md',
-      'getting-started/*.md',
-      'tutorials/basic/*.md',
-      'examples/simple/*.md'
-    ],
+    filename: "llms-getting-started.txt",
+    includePatterns: ["**/*.md"],
+    ignorePatterns: ["advanced/**/*.md", "internal/**/*.md"],
+    orderPatterns: ["introduction.md", "getting-started/*.md", "tutorials/basic/*.md", "examples/simple/*.md"],
     fullContent: true,
-    title: 'Getting Started Guide',
-    description: 'Beginner-friendly documentation with essential concepts'
-  }
-]
+    title: "Getting Started Guide",
+    description: "Beginner-friendly documentation with essential concepts",
+  },
+];
 ```
 
 ##### Versioned Documentation
@@ -430,33 +448,33 @@ Include version information in your documentation files:
 ```js
 plugins: [
   [
-    'docusaurus-plugin-llms',
+    "docusaurus-plugin-llms",
     {
       // Global version applies to all files
-      version: '2.0.0',
-      
+      version: "2.0.0",
+
       // Custom LLM files with specific versions
       customLLMFiles: [
         {
-          filename: 'api-reference.txt',
-          title: 'API Reference Documentation',
-          description: 'Complete API reference for developers',
-          includePatterns: ['**/api/**/*.md', '**/reference/**/*.md'],
+          filename: "api-reference.txt",
+          title: "API Reference Documentation",
+          description: "Complete API reference for developers",
+          includePatterns: ["**/api/**/*.md", "**/reference/**/*.md"],
           fullContent: true,
-          version: '1.0.0'  // Overrides global version
+          version: "1.0.0", // Overrides global version
         },
         {
-          filename: 'tutorials.txt',
-          title: 'Tutorials and Guides',
-          description: 'Step-by-step tutorials and guides',
-          includePatterns: ['**/tutorials/**/*.md', '**/guides/**/*.md'],
+          filename: "tutorials.txt",
+          title: "Tutorials and Guides",
+          description: "Step-by-step tutorials and guides",
+          includePatterns: ["**/tutorials/**/*.md", "**/guides/**/*.md"],
           fullContent: true,
-          version: '0.9.5-beta'  // Overrides global version
-        }
-      ]
-    }
+          version: "0.9.5-beta", // Overrides global version
+        },
+      ],
+    },
   ],
-]
+];
 ```
 
 The generated files will include the version information under the description:
@@ -473,13 +491,16 @@ This file contains all documentation content in a single document following the 
 
 ## Content Cleaning Options
 
-The plugin provides advanced content cleaning options to optimize your documentation for LLM consumption by removing unnecessary elements that can clutter the output.
+The plugin provides advanced content cleaning options to optimize your documentation for LLM consumption by removing
+unnecessary elements that can clutter the output.
 
 ### Import Statement Removal (`excludeImports`)
 
-The `excludeImports` option removes JavaScript/TypeScript import statements from your MDX files, which are typically not useful for LLMs and can create noise in the generated documentation.
+The `excludeImports` option removes JavaScript/TypeScript import statements from your MDX files, which are typically not
+useful for LLMs and can create noise in the generated documentation.
 
 #### When to Use
+
 - Your documentation uses MDX files with React components
 - You have many import statements for UI components
 - You want cleaner, more readable output for LLMs
@@ -487,13 +508,11 @@ The `excludeImports` option removes JavaScript/TypeScript import statements from
 #### Example
 
 **Before** (with `excludeImports: false`):
+
 ```markdown
-import ApiTabs from "@theme/ApiTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
-import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
-import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
-import MimeTabs from "@theme/MimeTabs";
-import ParamsItem from "@theme/ParamsItem";
+import ApiTabs from "@theme/ApiTabs"; import DiscriminatorTabs from "@theme/DiscriminatorTabs"; import MethodEndpoint
+from "@theme/ApiExplorer/MethodEndpoint"; import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes"; import
+MimeTabs from "@theme/MimeTabs"; import ParamsItem from "@theme/ParamsItem";
 
 # Create User Account
 
@@ -501,6 +520,7 @@ This endpoint creates a new user account...
 ```
 
 **After** (with `excludeImports: true`):
+
 ```markdown
 # Create User Account
 
@@ -508,6 +528,7 @@ This endpoint creates a new user account...
 ```
 
 #### Configuration
+
 ```js
 {
   excludeImports: true, // Remove all import statements
@@ -516,9 +537,11 @@ This endpoint creates a new user account...
 
 ### Duplicate Heading Removal (`removeDuplicateHeadings`)
 
-The `removeDuplicateHeadings` option removes redundant content that simply repeats the heading text immediately after the heading, which is common in auto-generated API documentation.
+The `removeDuplicateHeadings` option removes redundant content that simply repeats the heading text immediately after
+the heading, which is common in auto-generated API documentation.
 
 #### When to Use
+
 - Your documentation has redundant content that repeats heading text
 - You have auto-generated API docs with minimal content
 - You want to eliminate repetitive patterns for cleaner LLM consumption
@@ -526,6 +549,7 @@ The `removeDuplicateHeadings` option removes redundant content that simply repea
 #### Example
 
 **Before** (with `removeDuplicateHeadings: false`):
+
 ```markdown
 # Create Deliverable
 
@@ -541,6 +565,7 @@ Update User Profile
 ```
 
 **After** (with `removeDuplicateHeadings: true`):
+
 ```markdown
 # Create Deliverable
 
@@ -552,6 +577,7 @@ Update User Profile
 ```
 
 #### Configuration
+
 ```js
 {
   removeDuplicateHeadings: true, // Remove redundant heading text
@@ -566,16 +592,16 @@ For optimal LLM-friendly output, you can combine both options:
 module.exports = {
   plugins: [
     [
-      'docusaurus-plugin-llms',
+      "docusaurus-plugin-llms",
       {
         // Enable both content cleaning options for optimal LLM output
         excludeImports: true,
         removeDuplicateHeadings: true,
-        
+
         // Other configuration options...
         generateLLMsTxt: true,
         generateLLMsFullTxt: true,
-        docsDir: 'docs',
+        docsDir: "docs",
       },
     ],
   ],
@@ -585,34 +611,40 @@ module.exports = {
 ### Content Cleaning by Use Case
 
 #### Minimal Cleanup (Default Behavior)
+
 ```js
 {
   excludeImports: false,
   removeDuplicateHeadings: false
 }
 ```
+
 - Preserves all original content
 - Suitable when you want to keep import statements for reference
 - Good for documentation that doesn't have redundant patterns
 
 #### Import Cleanup Only
+
 ```js
 {
   excludeImports: true,
   removeDuplicateHeadings: false
 }
 ```
+
 - Removes import statements but keeps all content
 - Good for MDX-heavy documentation sites
 - Maintains content structure while removing technical imports
 
 #### Full Cleanup (Recommended for LLMs)
+
 ```js
 {
   excludeImports: true,
   removeDuplicateHeadings: true
 }
 ```
+
 - Maximum cleanup for LLM consumption
 - Removes both imports and redundant content
 - Recommended for API documentation and auto-generated content
@@ -621,6 +653,7 @@ module.exports = {
 ## Best Practices
 
 ### For API Documentation
+
 If you have auto-generated API documentation (like OpenAPI docs), enable both cleaning options:
 
 ```js
@@ -632,6 +665,7 @@ If you have auto-generated API documentation (like OpenAPI docs), enable both cl
 ```
 
 ### For Tutorial Content
+
 For hand-written tutorials and guides, you might want selective cleaning:
 
 ```js
@@ -647,6 +681,7 @@ For hand-written tutorials and guides, you might want selective cleaning:
 ```
 
 ### For Multi-Language Documentation
+
 Create separate clean files for different programming languages:
 
 ```js
@@ -661,7 +696,7 @@ Create separate clean files for different programming languages:
       title: 'Python Documentation'
     },
     {
-      filename: 'llms-javascript.txt', 
+      filename: 'llms-javascript.txt',
       includePatterns: ['**/javascript/**/*.md'],
       fullContent: true,
       title: 'JavaScript Documentation'
@@ -671,32 +706,40 @@ Create separate clean files for different programming languages:
 ```
 
 ### Performance Considerations
+
 - Content cleaning adds minimal processing overhead
 - Both options work on the content after HTML tag removal
 - No impact on your site's build performance
 - Cleaning happens only during the LLM file generation phase
 
 ### Backward Compatibility
-Both options default to `false`, ensuring existing configurations continue to work without changes. Only users who explicitly enable these features will see the cleaned output.
+
+Both options default to `false`, ensuring existing configurations continue to work without changes. Only users who
+explicitly enable these features will see the cleaned output.
 
 ## Markdown File Generation (`generateMarkdownFiles`)
 
-The `generateMarkdownFiles` option enables the plugin to generate individual markdown files for each documentation page, following the [llmstxt.org specification](https://llmstxt.org/) more closely. When enabled, this creates separate `.md` files for LLM consumption instead of linking to your original documentation pages.
+The `generateMarkdownFiles` option enables the plugin to generate individual markdown files for each documentation page,
+following the [llmstxt.org specification](https://llmstxt.org/) more closely. When enabled, this creates separate `.md`
+files for LLM consumption instead of linking to your original documentation pages.
 
 ### How It Works
 
 **Default Behavior (generateMarkdownFiles: false)**:
+
 - Generates `llms.txt` with links to your original documentation pages
 - Example: `[Getting Started](https://yoursite.com/docs/getting-started)`
 
 **With generateMarkdownFiles: true**:
+
 - Generates individual markdown files (e.g., `getting-started.md`, `api-reference.md`)
-- Generates `llms.txt` with links to these generated markdown files  
+- Generates `llms.txt` with links to these generated markdown files
 - Example: `[Getting Started](https://yoursite.com/getting-started.md)`
 
 ### Key Benefits
 
-1. **Standards Compliance**: Follows the llmstxt.org specification by providing individual markdown files rather than linking to HTML pages
+1. **Standards Compliance**: Follows the llmstxt.org specification by providing individual markdown files rather than
+   linking to HTML pages
 2. **LLM Optimization**: Generated files contain clean, processed markdown optimized for LLM consumption
 3. **Self-Contained**: All necessary content is available in markdown format without requiring HTML parsing
 4. **Flexible Naming**: Automatically generates readable filenames based on document titles
@@ -707,22 +750,22 @@ The `generateMarkdownFiles` option enables the plugin to generate individual mar
 module.exports = {
   plugins: [
     [
-      'docusaurus-plugin-llms',
+      "docusaurus-plugin-llms",
       {
-        generateMarkdownFiles: true,  // Enable individual markdown file generation
-        generateLLMsTxt: true,        // Generate index file linking to markdown files
-        excludeImports: true,         // Clean up import statements  
+        generateMarkdownFiles: true, // Enable individual markdown file generation
+        generateLLMsTxt: true, // Generate index file linking to markdown files
+        excludeImports: true, // Clean up import statements
         removeDuplicateHeadings: true, // Remove redundant content
-        
+
         // Other options work normally
-        includeOrder: ['getting-started/*', 'guides/*', 'api/*'],
+        includeOrder: ["getting-started/*", "guides/*", "api/*"],
         pathTransformation: {
-          ignorePaths: ['docs']
-        }
-      }
-    ]
-  ]
-}
+          ignorePaths: ["docs"],
+        },
+      },
+    ],
+  ],
+};
 ```
 
 ### Generated File Structure
@@ -734,7 +777,7 @@ build/
 ├── llms.txt              # Index file with links to generated markdown files
 ├── llms-full.txt         # Full content file (if enabled)
 ├── getting-started.md    # Generated from your getting started docs
-├── api-reference.md      # Generated from your API documentation  
+├── api-reference.md      # Generated from your API documentation
 ├── user-guide.md         # Generated from your user guides
 └── ...                   # Other generated markdown files
 ```
@@ -760,7 +803,7 @@ Generated markdown files include:
 
 Input documentation about "API Authentication" would generate `api-authentication.md`:
 
-```markdown
+````markdown
 # API Authentication
 
 > Learn how to authenticate with our API using various methods
@@ -774,9 +817,11 @@ This guide covers all authentication methods supported by our API...
 Use your API key to authenticate requests:
 
 ```javascript
-const client = new Client({ apiKey: 'your-key' });
+const client = new Client({ apiKey: "your-key" });
 ```
-```
+````
+
+````
 
 ### Use Cases
 
@@ -789,9 +834,10 @@ Perfect for projects that want to follow the llmstxt.org specification exactly:
   generateLLMsTxt: true,
   generateLLMsFullTxt: false  // Optional: disable if only individual files are needed
 }
-```
+````
 
 #### LLM Training Data
+
 Generate clean markdown files for LLM training or fine-tuning:
 
 ```js
@@ -810,11 +856,12 @@ Generate clean markdown files for LLM training or fine-tuning:
 ```
 
 #### Multi-Format Output
+
 Generate both original links and markdown files for different use cases:
 
 ```js
 {
-  generateLLMsTxt: true,      // Links to original pages  
+  generateLLMsTxt: true,      // Links to original pages
   generateMarkdownFiles: true, // Also generate individual markdown files
   llmsTxtFilename: 'llms-original.txt',  // Original links file
   // The markdown-linked version will be in llms.txt
@@ -836,8 +883,8 @@ This plugin automatically generates the following files during the build process
 - **llms-full.txt**: Contains all documentation content in a single file
 - **Custom LLM files**: Additional files based on your custom configurations
 
-These files follow the [llmstxt standard](https://llmstxt.org/), making your documentation optimized for use with Large Language Models (LLMs).
-
+These files follow the [llmstxt standard](https://llmstxt.org/), making your documentation optimized for use with Large
+Language Models (LLMs).
 
 ## Implementation Details
 
@@ -865,13 +912,13 @@ To run the tests:
 
 ```bash
 # Run all tests
-npm test
+just test
 
 # Run just the unit tests
-npm run test:unit
+just test-unit
 
 # Run just the integration tests
-npm run test:integration
+just test-integration
 ```
 
 For more detailed testing instructions, see [tests/TESTING.md](tests/TESTING.md).
@@ -885,5 +932,5 @@ Planned features for future versions:
 - Specific content tags for LLM-only sections
 
 ## License
-This project is licensed under the MIT License.
 
+This project is licensed under the MIT License.

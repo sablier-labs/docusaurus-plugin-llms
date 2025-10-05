@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["@sablier/devkit/biome"],
+  "files": {
+    "includes": ["src/**/*.ts", "!node_modules/**/*", "!lib/**/*", "!test-site/**/*", "!examples/**/*", "!tests/**/*"]
+  },
+  "overrides": [
+    {
+      "includes": ["**/tests/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    }
+  ]
+}

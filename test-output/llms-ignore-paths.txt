@@ -6,13 +6,13 @@ This file contains links to documentation sections following the llmstxt.org sta
 
 ## Table of Contents
 
-- [Core API Reference](https://example.com/api/core): Complete reference documentation for the core API functionalities.
-- [API Overview](https://example.com/api/overview): This is the API overview.
-- [Plugins System](https://example.com/api/plugins): Comprehensive documentation for the plugin architecture allowing you to extend the core functionality with custom modules. This plugin system enabl...
 - [Changelog](https://example.com/changelog): Complete version history with all features, improvements, and bug fixes.
-- [Authentication Examples](https://example.com/examples/authentication): Examples of authenticating with the API using different programming languages and methods.
 - [Frequently Asked Questions](https://example.com/faq): Answers to common questions about installation, usage, and troubleshooting.
 - [Getting Started](https://example.com/getting-started): This is a getting started guide.
-- [Advanced Usage Guide](https://example.com/guides/advanced-usage): Comprehensive guide for advanced users with complex integration scenarios.
 - [Home](https://example.com/): Welcome to the test docs.
+- [Advanced Usage Guide](https://example.com/guides/advanced-usage): Comprehensive guide for advanced users with complex integration scenarios.
+- [Authentication Examples](https://example.com/examples/authentication): Examples of authenticating with the API using different programming languages and methods.
+- [API Overview](https://example.com/api/overview): This is the API overview.
+- [Plugins System](https://example.com/api/plugins): Comprehensive documentation for the plugin architecture allowing you to extend the core functionality with custom modules. This plugin system enabl...
+- [Core API Reference](https://example.com/api/core): Complete reference documentation for the core API functionalities.
 - [Quick Start Guide](https://example.com/tutorials/quick-start): Get up and running with our product in less than 5 minutes.

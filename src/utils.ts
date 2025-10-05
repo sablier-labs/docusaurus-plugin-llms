@@ -2,12 +2,12 @@
  * Utility functions for the docusaurus-plugin-llms plugin
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { minimatch } from 'minimatch';
-import matter from 'gray-matter';
-import * as YAML from 'yaml';
-import { PluginOptions } from './types';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import matter from "gray-matter";
+import { minimatch } from "minimatch";
+import * as YAML from "yaml";
+import type { PluginOptions } from "./types";
 
 /**
  * Write content to a file
@@ -15,7 +15,7 @@ import { PluginOptions } from './types';
  * @param data - Content to write
  */
 export async function writeFile(filePath: string, data: string): Promise<void> {
-  return fs.writeFile(filePath, data, 'utf8');
+  return fs.writeFile(filePath, data, "utf8");
 }
 
 /**
@@ -24,7 +24,7 @@ export async function writeFile(filePath: string, data: string): Promise<void> {
  * @returns Content of the file
  */
 export async function readFile(filePath: string): Promise<string> {
-  return fs.readFile(filePath, 'utf8');
+  return fs.readFile(filePath, "utf8");
 }
 
 /**
@@ -38,12 +38,10 @@ export function shouldIgnoreFile(filePath: string, baseDir: string, ignorePatter
   if (ignorePatterns.length === 0) {
     return false;
   }
-  
+
   const relativePath = path.relative(baseDir, filePath);
-  
-  return ignorePatterns.some(pattern => 
-    minimatch(relativePath, pattern, { matchBase: true })
-  );
+
+  return ignorePatterns.some((pattern) => minimatch(relativePath, pattern, { matchBase: true }));
 }
 
 /**
@@ -53,23 +51,27 @@ export function shouldIgnoreFile(filePath: string, baseDir: string, ignorePatter
  * @param ignorePatterns - Glob patterns for files to ignore
  * @returns Array of file paths
  */
-export async function readMarkdownFiles(dir: string, baseDir: string, ignorePatterns: string[] = []): Promise<string[]> {
+export async function readMarkdownFiles(
+  dir: string,
+  baseDir: string,
+  ignorePatterns: string[] = [],
+): Promise<string[]> {
   const files: string[] = [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    
+
     if (shouldIgnoreFile(fullPath, baseDir, ignorePatterns)) {
       continue;
     }
-    
+
     if (entry.isDirectory()) {
       const subDirFiles = await readMarkdownFiles(fullPath, baseDir, ignorePatterns);
       files.push(...subDirFiles);
-    } else if (entry.name.endsWith('.md') || entry.name.endsWith('.mdx')) {
+    } else if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
       // Skip partial files (those starting with underscore)
-      if (!entry.name.startsWith('_')) {
+      if (!entry.name.startsWith("_")) {
         files.push(fullPath);
       }
     }
@@ -85,21 +87,22 @@ export async function readMarkdownFiles(dir: string, baseDir: string, ignorePatt
  * @param filePath - Path to the file
  * @returns Extracted title
  */
-export function extractTitle(data: any, content: string, filePath: string): string {
+export function extractTitle(data: Record<string, unknown>, content: string, filePath: string): string {
   // First try frontmatter
-  if (data.title) {
+  if (data.title && typeof data.title === "string") {
     return data.title;
   }
-  
+
   // Then try first heading
   const headingMatch = content.match(/^#\s+(.*)/m);
   if (headingMatch) {
     return headingMatch[1].trim();
   }
-  
+
   // Finally use filename
-  return path.basename(filePath, path.extname(filePath))
-    .replace(/-/g, ' ')
+  return path
+    .basename(filePath, path.extname(filePath))
+    .replace(/-/g, " ")
     .replace(/\b\w/g, (c: string) => c.toUpperCase());
 }
 
@@ -111,54 +114,57 @@ export function extractTitle(data: any, content: string, filePath: string): stri
  */
 export async function resolvePartialImports(content: string, filePath: string): Promise<string> {
   let resolved = content;
-  
+
   // Match import statements for partials and JSX usage
   // Pattern 1: import PartialName from './_partial.mdx'
   // Pattern 2: import { PartialName } from './_partial.mdx'
   const importRegex = /^\s*import\s+(?:(\w+)|{\s*(\w+)\s*})\s+from\s+['"]([^'"]+_[^'"]+\.mdx?)['"];?\s*$/gm;
   const imports = new Map<string, string>();
-  
+
   // First pass: collect all imports
-  let match;
+  let match: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: Standard RegExp.exec() pattern
   while ((match = importRegex.exec(content)) !== null) {
     const componentName = match[1] || match[2];
     const importPath = match[3];
-    
+
     // Only process imports for partial files (containing underscore)
-    if (importPath.includes('_')) {
+    if (importPath.includes("_")) {
       imports.set(componentName, importPath);
     }
   }
-  
+
   // Resolve each partial import
   for (const [componentName, importPath] of imports) {
     try {
       // Resolve the partial file path relative to the current file
       const dir = path.dirname(filePath);
       const partialPath = path.resolve(dir, importPath);
-      
+
       // Read the partial file
       const partialContent = await readFile(partialPath);
       const { content: partialMarkdown } = matter(partialContent);
-      
+
       // Remove the import statement
       resolved = resolved.replace(
-        new RegExp(`^\\s*import\\s+(?:${componentName}|{\\s*${componentName}\\s*})\\s+from\\s+['"]${importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"];?\\s*$`, 'gm'),
-        ''
+        new RegExp(
+          `^\\s*import\\s+(?:${componentName}|{\\s*${componentName}\\s*})\\s+from\\s+['"]${importPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}['"];?\\s*$`,
+          "gm",
+        ),
+        "",
       );
-      
+
       // Replace JSX usage with the partial content
       // Handle both self-closing tags and tags with content
       // <PartialName /> or <PartialName></PartialName> or <PartialName>...</PartialName>
-      const jsxRegex = new RegExp(`<${componentName}\\s*(?:[^>]*?)(?:/>|>[^<]*</${componentName}>)`, 'g');
+      const jsxRegex = new RegExp(`<${componentName}\\s*(?:[^>]*?)(?:/>|>[^<]*</${componentName}>)`, "g");
       resolved = resolved.replace(jsxRegex, partialMarkdown.trim());
-      
     } catch (error) {
       console.warn(`Failed to resolve partial import "${importPath}" in ${filePath}: ${error}`);
       // Leave the import and usage as-is if we can't resolve it
     }
   }
-  
+
   return resolved;
 }
 
@@ -169,9 +175,13 @@ export async function resolvePartialImports(content: string, filePath: string): 
  * @param removeDuplicateHeadings - Whether to remove redundant content that duplicates heading text
  * @returns Cleaned content
  */
-export function cleanMarkdownContent(content: string, excludeImports: boolean = false, removeDuplicateHeadings: boolean = false): string {
+export function cleanMarkdownContent(
+  content: string,
+  excludeImports: boolean = false,
+  removeDuplicateHeadings: boolean = false,
+): string {
   let cleaned = content;
-  
+
   // Remove import statements if requested
   if (excludeImports) {
     // Remove ES6/React import statements
@@ -181,46 +191,49 @@ export function cleanMarkdownContent(content: string, excludeImports: boolean = 
     // - import { ... } from "...";
     // - import * as ... from "...";
     // - import "..."; (side-effect imports)
-    cleaned = cleaned.replace(/^\s*import\s+.*?;?\s*$/gm, '');
+    cleaned = cleaned.replace(/^\s*import\s+.*?;?\s*$/gm, "");
   }
-  
+
   // Remove HTML tags, but preserve XML content in code blocks
   // We need to be selective to avoid removing XML content from code blocks
   // This regex targets common HTML tags while being more conservative about XML
-  cleaned = cleaned.replace(/<\/?(?:div|span|p|br|hr|img|a|strong|em|b|i|u|h[1-6]|ul|ol|li|table|tr|td|th|thead|tbody)\b[^>]*>/gi, '');
-  
+  cleaned = cleaned.replace(
+    /<\/?(?:div|span|p|br|hr|img|a|strong|em|b|i|u|h[1-6]|ul|ol|li|table|tr|td|th|thead|tbody)\b[^>]*>/gi,
+    "",
+  );
+
   // Remove redundant content that just repeats the heading (if requested)
   if (removeDuplicateHeadings) {
     // Split content into lines and process line by line
-    const lines = cleaned.split('\n');
+    const lines = cleaned.split("\n");
     const processedLines: string[] = [];
     let i = 0;
-    
+
     while (i < lines.length) {
       const currentLine = lines[i];
-      
+
       // Check if current line is a heading (accounting for leading whitespace)
       const headingMatch = currentLine.match(/^\s*(#+)\s+(.+)$/);
       if (headingMatch) {
-        const headingLevel = headingMatch[1];
+        const _headingLevel = headingMatch[1];
         const headingText = headingMatch[2].trim();
-        
+
         processedLines.push(currentLine);
         i++;
-        
+
         // Look ahead for potential redundant content
         // Skip empty lines
-        while (i < lines.length && lines[i].trim() === '') {
+        while (i < lines.length && lines[i].trim() === "") {
           processedLines.push(lines[i]);
           i++;
         }
-        
+
         // Check if the next non-empty line just repeats the heading text
         // but is NOT itself a heading (to avoid removing valid headings of different levels)
         if (i < lines.length) {
           const nextLine = lines[i].trim();
           const nextLineIsHeading = /^\s*#+\s+/.test(nextLine);
-          
+
           // Only remove if it exactly matches the heading text AND is not a heading itself
           if (nextLine === headingText && !nextLineIsHeading) {
             // Skip this redundant line
@@ -232,15 +245,16 @@ export function cleanMarkdownContent(content: string, excludeImports: boolean = 
         i++;
       }
     }
-    
-    cleaned = processedLines.join('\n');
+
+    cleaned = processedLines.join("\n");
   }
-  
+
   // Normalize whitespace
-  cleaned = cleaned.replace(/\r\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
+  cleaned = cleaned
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
-    
+
   return cleaned;
 }
 
@@ -252,44 +266,44 @@ export function cleanMarkdownContent(content: string, excludeImports: boolean = 
  */
 export function applyPathTransformations(
   urlPath: string,
-  pathTransformation?: PluginOptions['pathTransformation']
+  pathTransformation?: PluginOptions["pathTransformation"],
 ): string {
   if (!pathTransformation) {
     return urlPath;
   }
 
   let transformedPath = urlPath;
-  
+
   // Remove ignored path segments
   if (pathTransformation.ignorePaths?.length) {
     for (const ignorePath of pathTransformation.ignorePaths) {
       // Create a regex that matches the ignore path at the beginning, middle, or end of the path
       // We use word boundaries to ensure we match complete path segments
-      const ignoreRegex = new RegExp(`(^|/)(${ignorePath})(/|$)`, 'g');
-      transformedPath = transformedPath.replace(ignoreRegex, '$1$3');
+      const ignoreRegex = new RegExp(`(^|/)(${ignorePath})(/|$)`, "g");
+      transformedPath = transformedPath.replace(ignoreRegex, "$1$3");
     }
-    
+
     // Clean up any double slashes that might have been created
-    transformedPath = transformedPath.replace(/\/+/g, '/');
-    
+    transformedPath = transformedPath.replace(/\/+/g, "/");
+
     // Remove leading slash if present
-    transformedPath = transformedPath.replace(/^\//, '');
+    transformedPath = transformedPath.replace(/^\//, "");
   }
-  
+
   // Add path segments if they're not already present
   if (pathTransformation.addPaths?.length) {
     // Process in reverse order to maintain the specified order in the final path
     // This is because each path is prepended to the front
     const pathsToAdd = [...pathTransformation.addPaths].reverse();
-    
+
     for (const addPath of pathsToAdd) {
       // Only add if not already present at the beginning
-      if (!transformedPath.startsWith(addPath + '/') && transformedPath !== addPath) {
+      if (!transformedPath.startsWith(addPath + "/") && transformedPath !== addPath) {
         transformedPath = `${addPath}/${transformedPath}`;
       }
     }
   }
-  
+
   return transformedPath;
 }
 
@@ -299,14 +313,14 @@ export function applyPathTransformations(
  * @param fallback - Fallback string if input becomes empty after sanitization
  * @returns Sanitized filename (without extension)
  */
-export function sanitizeForFilename(input: string, fallback: string = 'untitled'): string {
+export function sanitizeForFilename(input: string, fallback: string = "untitled"): string {
   if (!input) return fallback;
-  
+
   const sanitized = input
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
   return sanitized || fallback;
 }
 
@@ -318,18 +332,18 @@ export function sanitizeForFilename(input: string, fallback: string = 'untitled'
  * @returns Unique identifier
  */
 export function ensureUniqueIdentifier(
-  baseIdentifier: string, 
+  baseIdentifier: string,
   usedIdentifiers: Set<string>,
-  suffix: (counter: number, base: string) => string = (counter) => `(${counter})`
+  suffix: (counter: number, base: string) => string = (counter) => `(${counter})`,
 ): string {
   let uniqueIdentifier = baseIdentifier;
   let counter = 1;
-  
+
   while (usedIdentifiers.has(uniqueIdentifier.toLowerCase())) {
     counter++;
     uniqueIdentifier = `${baseIdentifier}${suffix(counter, baseIdentifier)}`;
   }
-  
+
   usedIdentifiers.add(uniqueIdentifier.toLowerCase());
   return uniqueIdentifier;
 }
@@ -344,28 +358,29 @@ export function ensureUniqueIdentifier(
  * @returns Formatted markdown content
  */
 export function createMarkdownContent(
-  title: string, 
-  description: string = '', 
-  content: string = '',
+  title: string,
+  description: string = "",
+  content: string = "",
   includeMetadata: boolean = true,
-  frontMatter?: Record<string, any>
+  frontMatter?: Record<string, unknown>,
 ): string {
-  let result = '';
-  
+  let result = "";
+
   // Add frontmatter if provided
   if (frontMatter && Object.keys(frontMatter).length > 0) {
-    result += '---\n';
+    result += "---\n";
     result += YAML.stringify(frontMatter, {
-      defaultStringType: 'PLAIN',
-      defaultKeyType: 'PLAIN'
+      defaultKeyType: "PLAIN",
+      defaultStringType: "PLAIN",
     });
-    result += '---\n\n';
+    result += "---\n\n";
   }
-  
-  const descriptionLine = includeMetadata && description ? `\n\n> ${description}\n` : '\n';
-  
-  result += `# ${title}${descriptionLine}
-${content}`.trim() + '\n';
+
+  const descriptionLine = includeMetadata && description ? `\n\n> ${description}\n` : "\n";
+
+  result +=
+    `# ${title}${descriptionLine}
+${content}`.trim() + "\n";
 
   return result;
-} 
+}

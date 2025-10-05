@@ -4,23 +4,23 @@
  * from deleted source files but are still compiled by TypeScript.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("node:fs");
+const path = require("node:path");
 
 // Files and directories to remove from lib
 const toRemove = [
   // 'types.js',
   // 'types.d.ts',
-  'constants.js',
-  'constants.d.ts',
-  'helpers',
-  'remark-plugins'
+  "constants.js",
+  "constants.d.ts",
+  "helpers",
+  "remark-plugins",
 ];
 
 // Helper to remove a directory recursively
 function removeDir(dirPath) {
   if (fs.existsSync(dirPath)) {
-    fs.readdirSync(dirPath).forEach(file => {
+    fs.readdirSync(dirPath).forEach((file) => {
       const curPath = path.join(dirPath, file);
       if (fs.lstatSync(curPath).isDirectory()) {
         removeDir(curPath);
@@ -35,22 +35,22 @@ function removeDir(dirPath) {
 
 // Main cleanup function
 function cleanup() {
-  const libDir = path.join(__dirname, 'lib');
-  
+  const libDir = path.join(__dirname, "lib");
+
   if (!fs.existsSync(libDir)) {
-    console.warn('⚠️ lib directory not found, nothing to clean up.');
+    console.warn("⚠️ lib directory not found, nothing to clean up.");
     return;
   }
-  
-  console.log('Cleaning up lib directory before publishing...');
-  
+
+  console.log("Cleaning up lib directory before publishing...");
+
   // Process each item to remove
-  toRemove.forEach(item => {
+  toRemove.forEach((item) => {
     const itemPath = path.join(libDir, item);
-    
+
     if (fs.existsSync(itemPath)) {
       const stats = fs.statSync(itemPath);
-      
+
       if (stats.isDirectory()) {
         removeDir(itemPath);
       } else {
@@ -59,9 +59,9 @@ function cleanup() {
       }
     }
   });
-  
-  console.log('✓ Cleanup complete!');
+
+  console.log("✓ Cleanup complete!");
 }
 
 // Run the cleanup
-cleanup(); 
+cleanup();
