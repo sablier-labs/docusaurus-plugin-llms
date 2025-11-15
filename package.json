@@ -1,6 +1,6 @@
 {
   "name": "@sablier/docusaurus-plugin-llms",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A fork of docusaurus-plugin-llms for generating LLM-friendly documentation following the llmstxt.org standard",
   "license": "MIT",
   "main": "lib/index.js",
