@@ -1,7 +1,10 @@
 # 📜 docusaurus-plugin-llms
 
-> [!NOTE] This is a fork of docusaurus-plugin-llms created by [Patrick Rachford](https://github.com/rachfop/). The
-> forked version is maintained by Sablier Labs. We thank Patrick for his contribution and creating the plugin.
+<!-- prettier-ignore -->
+> [!NOTE]
+> This is a fork of docusaurus-plugin-llms created by [Patrick Rachford](https://github.com/rachfop/) and begins
+> versioning at [0.3.0](https://github.com/sablier-labs/docusaurus-plugin-llms/releases/tag/v0.3.0).
+> The forked version is maintained by Sablier Labs. We thank Patrick for his contribution and creating the plugin.
 
 A Docusaurus plugin for generating LLM-friendly documentation following the [llmstxt standard](https://llmstxt.org/).
 
