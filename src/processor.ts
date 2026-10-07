@@ -6,7 +6,13 @@ import * as path from "node:path";
 import matter from "gray-matter";
 import { minimatch } from "minimatch";
 import type { DocInfo, PluginContext } from "./types";
-import { applyPathTransformations, cleanMarkdownContent, extractTitle, readFile, resolvePartialImports } from "./utils";
+import {
+  applyPathTransformations,
+  cleanMarkdownContent,
+  extractTitle,
+  readFile,
+  resolvePartialImports,
+} from "./utils";
 
 /**
  * Process a markdown file and extract its metadata and content
@@ -57,7 +63,9 @@ export async function processMarkdownFile(
     const linkPathBase = normalizedPath.replace(/\.mdx?$/, "");
 
     // Handle index files specially
-    let linkPath = linkPathBase.endsWith("index") ? linkPathBase.replace(/\/index$/, "") : linkPathBase;
+    let linkPath = linkPathBase.endsWith("index")
+      ? linkPathBase.replace(/\/index$/, "")
+      : linkPathBase;
 
     // linkPath might include the pathPrefix (e.g., "docs/api/core")
     // We need to remove the pathPrefix before applying transformations, then add it back later
@@ -149,12 +157,18 @@ export async function processMarkdownFile(
 
     // Warn if the description is very long
     if (description.length > 500) {
-      console.warn(`Warning: Description for "${title}" is very long (${description.length} characters)`);
+      console.warn(
+        `Warning: Description for "${title}" is very long (${description.length} characters)`,
+      );
     }
   }
 
   // Clean and process content (now with partials already resolved)
-  const cleanedContent = cleanMarkdownContent(resolvedContent, excludeImports, removeDuplicateHeadings);
+  const cleanedContent = cleanMarkdownContent(
+    resolvedContent,
+    excludeImports,
+    removeDuplicateHeadings,
+  );
 
   return {
     content: cleanedContent,
@@ -192,7 +206,9 @@ export async function processFilesWithPatterns(
   if (includePatterns.length > 0) {
     filteredFiles = allFiles.filter((file) => {
       const relativePath = path.relative(siteDir, file);
-      return includePatterns.some((pattern) => minimatch(relativePath, pattern, { matchBase: true }));
+      return includePatterns.some((pattern) =>
+        minimatch(relativePath, pattern, { matchBase: true }),
+      );
     });
   }
 
@@ -200,7 +216,9 @@ export async function processFilesWithPatterns(
   if (ignorePatterns.length > 0) {
     filteredFiles = filteredFiles.filter((file) => {
       const relativePath = path.relative(siteDir, file);
-      return !ignorePatterns.some((pattern) => minimatch(relativePath, pattern, { matchBase: true }));
+      return !ignorePatterns.some((pattern) =>
+        minimatch(relativePath, pattern, { matchBase: true }),
+      );
     });
   }
 

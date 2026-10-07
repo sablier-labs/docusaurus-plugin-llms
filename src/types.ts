@@ -7,19 +7,19 @@ import type { RouteConfig } from "@docusaurus/types";
 /**
  * Interface for processed document information
  */
-export interface DocInfo {
+export type DocInfo = {
   title: string;
   path: string;
   url: string;
   content: string;
   description: string;
   frontMatter?: Record<string, unknown>;
-}
+};
 
 /**
  * Interface for custom LLM file configuration
  */
-export interface CustomLLMFile {
+export type CustomLLMFile = {
   /** Name of the output file (e.g., 'llms-python.txt') */
   filename: string;
 
@@ -49,12 +49,12 @@ export interface CustomLLMFile {
 
   /** Custom content to include at the root level (after title/description) */
   rootContent?: string;
-}
+};
 
 /**
  * Plugin options interface
  */
-export interface PluginOptions {
+export type PluginOptions = {
   /** Whether to generate the llms.txt file (default: true) */
   generateLLMsTxt?: boolean;
 
@@ -122,12 +122,12 @@ export interface PluginOptions {
 
   /** Custom content to include at the root level of llms-full.txt (after title/description, before content sections) */
   fullRootContent?: string;
-}
+};
 
 /**
  * Plugin context with processed options
  */
-export interface PluginContext {
+export type PluginContext = {
   siteDir: string;
   outDir: string;
   siteUrl: string;
@@ -138,4 +138,4 @@ export interface PluginContext {
   routesPaths?: string[];
   routes?: RouteConfig[];
   routeMap?: Map<string, string>;
-}
+};

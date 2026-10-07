@@ -20,7 +20,10 @@ import type { PluginContext, PluginOptions } from "./types";
  * @param options - Plugin options
  * @returns Plugin object
  */
-export default function docusaurusPluginLLMs(context: LoadContext, options: PluginOptions = {}): Plugin<void> {
+export default function docusaurusPluginLLMs(
+  context: LoadContext,
+  options: PluginOptions = {},
+): Plugin<void> {
   // Set default options
   const {
     generateLLMsTxt = true,
@@ -49,7 +52,8 @@ export default function docusaurusPluginLLMs(context: LoadContext, options: Plug
 
   // Build the site URL with proper trailing slash
   const siteUrl =
-    siteConfig.url + (siteConfig.baseUrl.endsWith("/") ? siteConfig.baseUrl.slice(0, -1) : siteConfig.baseUrl || "");
+    siteConfig.url +
+    (siteConfig.baseUrl.endsWith("/") ? siteConfig.baseUrl.slice(0, -1) : siteConfig.baseUrl || "");
 
   // Create a plugin context object with processed options
   const pluginContext: PluginContext = {

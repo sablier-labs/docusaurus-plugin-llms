@@ -127,7 +127,8 @@ ${doc.content}`;
 
     // Use custom root content or default message
     const rootContent =
-      customRootContent || "This file contains links to documentation sections following the llmstxt.org standard.";
+      customRootContent ||
+      "This file contains links to documentation sections following the llmstxt.org standard.";
 
     const llmFileContent = createMarkdownContent(
       fileTitle,
@@ -167,7 +168,10 @@ export async function generateIndividualMarkdownFiles(
       .replace(/^\/+/, "") // Remove leading slashes
       .replace(/\.mdx?$/, ".md"); // Ensure .md extension
 
-    relativePath = relativePath.replace(new RegExp(`^${docsDir.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/`), ""); // Remove configured docs dir prefix
+    relativePath = relativePath.replace(
+      new RegExp(`^${docsDir.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/`),
+      "",
+    ); // Remove configured docs dir prefix
 
     // If frontmatter has slug, use that.
     if (doc.frontMatter?.slug && typeof doc.frontMatter.slug === "string") {
@@ -251,7 +255,10 @@ export async function generateIndividualMarkdownFiles(
  * @param context - Plugin context
  * @param allDocFiles - Array of all document files
  */
-export async function generateStandardLLMFiles(context: PluginContext, allDocFiles: string[]): Promise<void> {
+export async function generateStandardLLMFiles(
+  context: PluginContext,
+  allDocFiles: string[],
+): Promise<void> {
   const { outDir, siteUrl, docTitle, docDescription, options } = context;
 
   const {
@@ -329,7 +336,10 @@ export async function generateStandardLLMFiles(context: PluginContext, allDocFil
  * @param context - Plugin context
  * @param allDocFiles - Array of all document files
  */
-export async function generateCustomLLMFiles(context: PluginContext, allDocFiles: string[]): Promise<void> {
+export async function generateCustomLLMFiles(
+  context: PluginContext,
+  allDocFiles: string[],
+): Promise<void> {
   const { outDir, siteUrl, docTitle, docDescription, options } = context;
   const { customLLMFiles = [], ignoreFiles = [], generateMarkdownFiles = false } = options;
 
@@ -340,7 +350,9 @@ export async function generateCustomLLMFiles(context: PluginContext, allDocFiles
   console.log(`Generating ${customLLMFiles.length} custom LLM files...`);
 
   for (const customFile of customLLMFiles) {
-    console.log(`Processing custom file: ${customFile.filename}, version: ${customFile.version || "undefined"}`);
+    console.log(
+      `Processing custom file: ${customFile.filename}, version: ${customFile.version || "undefined"}`,
+    );
 
     // Combine global ignores with custom ignores
     const combinedIgnores = [...ignoreFiles];
@@ -361,7 +373,9 @@ export async function generateCustomLLMFiles(context: PluginContext, allDocFiles
     if (customDocs.length > 0) {
       // Generate individual markdown files if requested
       if (generateMarkdownFiles) {
-        console.log(`Generating individual markdown files for custom file: ${customFile.filename}...`);
+        console.log(
+          `Generating individual markdown files for custom file: ${customFile.filename}...`,
+        );
         customDocs = await generateIndividualMarkdownFiles(
           customDocs,
           outDir,
@@ -387,7 +401,9 @@ export async function generateCustomLLMFiles(context: PluginContext, allDocFiles
         customFile.rootContent,
       );
 
-      console.log(`Generated custom LLM file: ${customFile.filename} with ${customDocs.length} documents`);
+      console.log(
+        `Generated custom LLM file: ${customFile.filename} with ${customDocs.length} documents`,
+      );
     } else {
       console.warn(`No matching documents found for custom LLM file: ${customFile.filename}`);
     }

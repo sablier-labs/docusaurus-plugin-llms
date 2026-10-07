@@ -34,7 +34,11 @@ export async function readFile(filePath: string): Promise<string> {
  * @param ignorePatterns - Glob patterns for files to ignore
  * @returns Whether the file should be ignored
  */
-export function shouldIgnoreFile(filePath: string, baseDir: string, ignorePatterns: string[]): boolean {
+export function shouldIgnoreFile(
+  filePath: string,
+  baseDir: string,
+  ignorePatterns: string[],
+): boolean {
   if (ignorePatterns.length === 0) {
     return false;
   }
@@ -87,7 +91,11 @@ export async function readMarkdownFiles(
  * @param filePath - Path to the file
  * @returns Extracted title
  */
-export function extractTitle(data: Record<string, unknown>, content: string, filePath: string): string {
+export function extractTitle(
+  data: Record<string, unknown>,
+  content: string,
+  filePath: string,
+): string {
   // First try frontmatter
   if (data.title && typeof data.title === "string") {
     return data.title;
@@ -118,7 +126,8 @@ export async function resolvePartialImports(content: string, filePath: string): 
   // Match import statements for partials and JSX usage
   // Pattern 1: import PartialName from './_partial.mdx'
   // Pattern 2: import { PartialName } from './_partial.mdx'
-  const importRegex = /^\s*import\s+(?:(\w+)|{\s*(\w+)\s*})\s+from\s+['"]([^'"]+_[^'"]+\.mdx?)['"];?\s*$/gm;
+  const importRegex =
+    /^\s*import\s+(?:(\w+)|{\s*(\w+)\s*})\s+from\s+['"]([^'"]+_[^'"]+\.mdx?)['"];?\s*$/gm;
   const imports = new Map<string, string>();
 
   // First pass: collect all imports
@@ -157,7 +166,10 @@ export async function resolvePartialImports(content: string, filePath: string): 
       // Replace JSX usage with the partial content
       // Handle both self-closing tags and tags with content
       // <PartialName /> or <PartialName></PartialName> or <PartialName>...</PartialName>
-      const jsxRegex = new RegExp(`<${componentName}\\s*(?:[^>]*?)(?:/>|>[^<]*</${componentName}>)`, "g");
+      const jsxRegex = new RegExp(
+        `<${componentName}\\s*(?:[^>]*?)(?:/>|>[^<]*</${componentName}>)`,
+        "g",
+      );
       resolved = resolved.replace(jsxRegex, partialMarkdown.trim());
     } catch (error) {
       console.warn(`Failed to resolve partial import "${importPath}" in ${filePath}: ${error}`);
