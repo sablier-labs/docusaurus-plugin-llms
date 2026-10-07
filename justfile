@@ -14,7 +14,7 @@ cleanup:
     bun cleanup.js
 
 [group("test")]
-test: tsc-build test-unit test-integration
+test: (tsc-build "tsconfig.build.json") test-unit test-integration
 
 [group("test")]
 test-unit:
